@@ -16,6 +16,7 @@ public class TreeLeaf {
         System.out.println("Hello Red Leaf !");
     }
 
+    //1. leetcode 112 -- hasPathSum
     public boolean hasPathSum(TreeNode root, int sum) {
         if(root == null){
             return false;
@@ -27,7 +28,8 @@ public class TreeLeaf {
                 return true;
             }
         } else {
-            return hasPathSum(root.left, sum - root.val) || hasPathSum(root.right, sum - root.val);
+            return hasPathSum(root.left, sum - root.val)
+                    || hasPathSum(root.right, sum - root.val);
         }
 
         return false;
