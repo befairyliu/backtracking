@@ -1,5 +1,8 @@
 package com.liu.redleaf;
 
+import javafx.util.Pair;
+import java.util.*;
+
 public class ArrayLeaf {
   
     //1.merge two array
