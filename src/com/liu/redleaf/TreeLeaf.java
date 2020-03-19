@@ -3,7 +3,7 @@ package com.liu.redleaf;
 import java.util.Stack;
 
 public class TreeLeaf {
-
+    
     // Definition for a binary tree node.
     public class TreeNode {
         int val;
@@ -12,35 +12,162 @@ public class TreeLeaf {
         TreeNode(int x) { val = x; }
     }
 
-    public static void main(String[] args){
-        System.out.println("Hello Red Leaf !");
-    }
-
-    //1. leetcode 112 -- hasPathSum
-    //test case1
-    //[1,-2,-3,1,3,-2,null,-1]
-    //-1
-    public boolean hasPathSum(TreeNode root, int sum) {
+    //1.isSymmetric tree 对称二叉树
+    public static boolean isSymmetric(TreeNode root){
         if(root == null){
-            return false;
+            return true;
         }
 
-        //1. Leaf node
-        if(root.left == null && root.right == null){
-            if(root.val == sum){
-                return true;
-            }
-        } else {
-            return hasPathSum(root.left, sum - root.val)
-                    || hasPathSum(root.right, sum - root.val);
-        }
-
-        return false;
+        return isSymmetricTree(root.left, root.right);
     }
-}
 
-//3.根据前序和中序遍历序列构造二叉树
-//3.3 method3
+    public static boolean isSymmetricTree(TreeNode left, TreeNode right){
+        if(left == null && right == null){
+            return true;
+        } else if ((left == null && right != null)
+                || (left != null && right == null)){
+            return false;
+        } else {
+            // todo
+            if(left.val == right.val){
+                return isSymmetricTree(left.left, right.right)
+                        && isSymmetricTree(left.right, right.left);
+            } else {
+                return false;
+            }
+        }
+    }
+
+    //2. 二叉树的最大深度
+    //2.1 recursion 递归方法
+    public static int maxDepth(TreeNode root){
+        if(root == null){
+            return 0;
+        }
+        //return depth(root.left, root.right);
+        return Math.max(maxDepth(root.left), maxDepth(root.right))+1;
+    }
+
+    //2.2 BFS method
+    public int maxDepthBFS(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        int level = 0;
+        Queue<TreeNode> queue = new LinkedList<TreeNode>();
+        queue.add(root);
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            level++;
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.remove();
+                if (node.left != null) queue.add(node.left);
+                if (node.right != null) queue.add(node.right);
+            }
+        }
+        return level;
+    }
+
+    // or method
+    public int maxDepthBFS2(TreeNode root) {
+        Queue<Pair<TreeNode, Integer>> stack = new LinkedList<>();
+        if (root != null) {
+            stack.add(new Pair(root, 1));
+        }
+
+        int depth = 0;
+        while (!stack.isEmpty()) {
+            Pair<TreeNode, Integer> current = stack.poll();
+            root = current.getKey();
+            int current_depth = current.getValue();
+            if (root != null) {
+                depth = Math.max(depth, current_depth);
+                stack.add(new Pair(root.left, current_depth + 1));
+                stack.add(new Pair(root.right, current_depth + 1));
+            }
+        }
+        return depth;
+    }
+
+
+    //2.3 DFS method
+    int maxLevel = 0;
+    public int maxDepthDFS(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        DFS(root, 1);
+        return maxLevel;
+    }
+
+    public void DFS(TreeNode root, int level) {
+        if (root == null)
+            return;
+        if (level > maxLevel) maxLevel = level;
+        DFS(root.left, level + 1);
+        DFS(root.right, level + 1);
+    }
+
+    //3. 构造二叉树
+    //test case1:
+    //前序遍历 preorder = [3,9,20,15,7]
+    //中序遍历 inorder = [9,3,15,20,7]
+    //3.根据前序和中序遍历序列构造二叉树
+    // 3.1 start from first preorder element
+    int pre_idx = 0;
+    int[] preorder;
+    int[] inorder;
+    HashMap<Integer, Integer> idx_map = new HashMap<Integer, Integer>();
+
+    public TreeNode helper(int in_left, int in_right) {
+        // if there is no elements to construct subtrees
+        if (in_left == in_right)
+            return null;
+
+        // pick up pre_idx element as a root
+        int root_val = preorder[pre_idx];
+        TreeNode root = new TreeNode(root_val);
+
+        // root splits inorder list
+        // into left and right subtrees
+        int index = idx_map.get(root_val);
+
+        // recursion
+        pre_idx++;
+        // build left subtree
+        root.left = helper(in_left, index);
+        // build right subtree
+        root.right = helper(index + 1, in_right);
+        return root;
+    }
+
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        this.preorder = preorder;
+        this.inorder = inorder;
+
+        // build a hashmap value -> its index
+        int idx = 0;
+        for (Integer val : inorder)
+            idx_map.put(val, idx++);
+        return helper(0, inorder.length);
+    }
+
+    //3.2 method2
+    // 找出前序序列preorder的第一个数，这就是整棵树的根节点，并且这个数将中序序列inorder分为左子树的中序序列和右子树的中序序列，把这作为递归中的inorder；
+    // 递归中的preorder怎么找？preorder数组的排列是[根节点的值,左子树的前序序列,右子树的前序序列]，因此只要取出左右子树的前序序列作为递归参数传下去就行；
+    //这个分解的位置就是根节点值在inorder中位置；
+    public TreeNode buildTree2(int[] preorder, int[] inorder) {
+        if(preorder.length==0) return null;
+        int val = preorder[0], i=0;
+        TreeNode node = new TreeNode(val);
+        while(inorder[i]!=val) i++;
+        node.left = buildTree2(Arrays.copyOfRange(preorder,1,i+1),Arrays.copyOfRange(inorder,0,i));
+        node.right = buildTree2(Arrays.copyOfRange(preorder,i+1,preorder.length), Arrays.copyOfRange(inorder,i+1,inorder.length));
+        return node;
+    }
+
+    //3.3 method3
     int preIndex = 0;//save the pre order start index
     public TreeNode buildTree3(int[] preorder, int[] inorder){
         if(preorder == null || inorder == null
@@ -222,3 +349,123 @@ public class TreeLeaf {
         newRoot.right = treeCopy(root.right);
         return newRoot;
     }
+
+    //6. leetcode 543 二叉树的直径
+    // 给定一棵二叉树，你需要计算它的直径长度。一棵二叉树的直径长度是任意两个结点路径长度中的最大值。这条路径可能穿过根结点。
+    // 解题思路：
+    // 二叉树的直径不一定过根节点，因此需要去搜一遍所有子树(例如以root，root.left, root.right...为根节点的树)对应的直径，取最大值。
+    //root的直径 = root左子树高度 + root右子树高度
+    //root的高度 = max {root左子树高度, root右子树高度} + 1
+    int diameter = 0; // save the max diameter
+    public int diameterOfBinaryTree(TreeNode root) {
+        nodeDepth(root);
+        return diameter;
+    }
+
+    //计算一个节点的深度
+    private int nodeDepth(TreeNode node){
+        if(node == null){
+            return 0;
+        }
+
+        //左儿子为根的子树的深度
+        int leftDepth = nodeDepth(node.left);
+        //右儿子为根的子树的深度
+        int rightDepth = nodeDepth(node.right);
+        //将每个节点最大直径(左子树深度+右子树深度)当前最大值比较并取大者
+        diameter = Math.max(leftDepth + rightDepth, diameter);
+
+        //返回节点的深度(左/右子树中最大的深度 + 节点自己)
+        return Math.max(leftDepth, rightDepth) + 1;
+    }
+
+    // 7. leetcode 124 二叉树中的最大路径和
+    // 给定一个非空二叉树，返回其最大路径和。
+    // 路径被定义为一条从树中任意节点出发，达到任意节点的序列。该路径至少包含一个节点，且不一定经过根节点。
+    int maxPath = Integer.MIN_VALUE;
+    public int maxPathSum(TreeNode root) {
+        nodeMaxPath(root);
+        return maxPath;
+    }
+
+    private int nodeMaxPath(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+
+        // max sum on the left and right sub-trees of node
+        int leftSum = Math.max(0, nodeMaxPath(root.left)); // 和上题唯一的区别在这里，如果左右孩子的结果是负数的话就舍弃。
+        int rightSum = Math.max(0, nodeMaxPath(root.right));
+
+        // the price to start a new path where `node` is a highest node
+        int priceNewPath = root.val + leftSum + rightSum;
+        // update max_sum if it's better to start a new path
+        maxPath = Math.max(maxPath, priceNewPath);
+        // for recursion :
+        // return the max gain if continue the same path
+        return Math.max(leftSum, rightSum) + root.val;
+    }
+
+    // 6. leetcode   最长同值路径
+    int res = 0;
+    public int longestUnivaluePath(TreeNode root) {
+        univalueHelper(root);
+        return res;
+    }
+
+    public int univalueHelper(TreeNode root){
+        if(root == null){
+            return 0;
+        }
+
+        int left = univalueHelper(root.left);
+        int right = univalueHelper(root.right);
+
+        if((root.left != null) && (root.left.val == root.val)){
+            left = left + 1;
+        } else {
+            left = 0;
+        }
+
+        if((root.right != null) && (root.right.val == root.val) ){
+            right = right + 1;
+        } else {
+            right = 0;
+        }
+
+        res = Math.max(res, left + right);
+
+        return Math.max(left, right);
+    }
+
+
+
+    public static void main(String[] args){
+
+//        int[] preorder = {3, 9, 20, 15, 7};
+//        int[] inorder = {9, 3, 15, 20, 7};
+//
+//        TreeLeaf instance = new TreeLeaf();
+//        TreeNode node = instance.buildTree3(preorder, inorder);
+//        System.out.println("======node========");
+//        System.out.println("node:"+node.toString());
+
+        Integer[] aa = {9, 3, 15, 20, 7};
+        Arrays.sort(aa, new Comparator<Integer>(){
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                if(o1 < o2){
+                    return -1;
+                } else if(o1 > o2){
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+
+        for(int i = 0; i < aa.length; i ++) {
+            System.out.print(aa[i] + " ");
+        }
+    }
+}
