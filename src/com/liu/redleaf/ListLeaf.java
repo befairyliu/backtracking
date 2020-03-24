@@ -174,6 +174,47 @@ public class ListLeaf {
         return res;
     }
 
+    //6. leetcode 链表的中间结点
+    public ListNode middleNode(ListNode head){
+        ListNode slow = head;
+        ListNode fast = head;
+        while(fast != null && fast.next != null){
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+
+        return slow;
+    }
+
+    //7. leetcod 面试题 02.05. 链表求和
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        int carry = 0;
+        ListNode dummy = new ListNode(0);
+        ListNode current = dummy;
+        while(l1 != null || l2 != null){
+            int a = l1 == null ? 0: l1.val;
+            int b = l2 == null ? 0: l2.val;
+
+            int c = a + b + carry;
+            carry = c / 10;
+
+            current.next = new ListNode(c % 10);
+
+            l1 = l1 == null ? null : l1.next;
+            l2 = l2 == null ? null : l2.next;
+
+            current = current.next;
+        }
+
+        if(carry == 1){
+            current.next = new ListNode(carry);
+        }
+
+        return dummy.next;
+    }
+    
+    
+    //===================================================================
 
     public static void main(String[] args){
         ListNode head = null;;
