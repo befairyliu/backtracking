@@ -175,6 +175,47 @@ public class StringLeaf {
         return output;
     }
 
+    
+    //6. leetcode 最长回文串
+    public int longestPalindrome(String s){
+        //check
+        if(s == null || s.isEmpty()){
+            return 0;
+        }
+
+        //统计字符出现的次数
+        int[] counts = new int[128];
+        for(char c : s.toCharArray()){
+            counts[c]++;
+        }
+
+        int result = 0;
+        for(int count: counts){
+            result = result + count / 2 * 2;
+            //首次字符是奇数次时+1 （回文的中间对称中心）
+            if(count % 2 == 1 && result %2 == 0){
+                result++;
+            }
+        }
+
+        return result;
+    }
+
+    //7. leetcode 面试题 01.09. 字符串轮转
+    public boolean isFlipedString(String s1, String s2) {
+        if(s1.length() != s2.length()){
+            return false;
+        }
+
+        if(s1.equals(s2)){
+            return true;
+        }
+
+        s1 += s1;
+        return s1.contains(s2);
+    }
+    
+    
 
     //=======================================
     public static void main(String[] args){
