@@ -441,6 +441,148 @@ public class ArrayLeaf {
         return num;
     }
 
+    //13. leetcode  连续差相同的数字
+    // 一个N位的数字可以看作N-1位数字加上最后一个数字。
+    // 如果N-1位数字以数字d结尾，则N位数字将以d−K
+    // 或d+K结尾（前提是这些数字在[0,9]范围内）
+    public int[] numsSameConsecDiff(int N, int K){
+        Set<Integer> set = new HashSet<>();
+        for(int i = 1; i <= 9; i++){
+            set.add(i);
+        }
+
+        for(int step = 1; step < N-1; step++){
+            Set<Integer> set2 = new HashSet<>();
+            for(int n : set){
+                int d = n %10;
+                if(d-K >= 0){
+                    set2.add(10*n + (d-K));
+                }
+
+                if(d+K <= 9){
+                   set2.add(10*n + (d+K));
+                }
+            }
+
+            set = set2;
+        }
+
+        if(N == 1){
+            set.add(0);
+        }
+
+        int[] res = new int[set.size()];
+        int i = 0;
+        for(int value: set){
+            res[i++] = value;
+        }
+
+        return res;
+    }
+
+    //循环判断个位数加减 K 是否在 0 ～ 9 范围内，直到数字的位数达到 N。
+    public int[] numsSameConsecDiffII(int N, int K){
+
+        Set<Integer> set = new HashSet<>();
+        for(int i = 1; i <= 9; i++){
+            set.add(i);
+        }
+
+        //数字位数count
+        int count = 1;
+        while(count < N){
+            // 保存临时数据
+            Set<Integer> temp = new HashSet<>();
+            // 循环添加最后一位数
+            for (int n: set){
+                int d = n % 10;
+                if(d-K >= 0){
+                    temp.add(10*n + (d-K));
+                }
+
+                if(d+K <= 9){
+                    temp.add(10*n + (d+K));
+                }
+            }
+            set = temp;
+            count++;
+        }
+
+        if(N == 1){
+            set.add(0);
+        }
+
+        int[] res = new int[set.size()];
+        int i = 0;
+        for(int value: set){
+            res[i++] = value;
+        }
+
+        return res;
+    }
+
+
+    //14. leetcode 4. 寻找两个有序数组的中位数
+    // 普通遍历找到中位数 Time -- O(m+n)
+    public double findMedianSortedArrays(int[] A, int[] B) {
+        int m = A.length;
+        int n = B.length;
+        int len = m + n;
+        // 记录遍历的前一个数和后一个数
+        int pre = -1, current = -1;
+        // 遍历A、B数组的当前位置
+        int aIndex = 0, bIndex = 0;
+        // 遍历
+        for (int i = 0; i <= len / 2; i++) {
+            pre = current;
+            if (aIndex < m
+                    && (bIndex >= n || A[aIndex] < B[bIndex])) {
+                current = A[aIndex++];
+            } else {
+                current = B[bIndex++];
+            }
+        }
+
+        if ((len & 1) == 0) {
+            return (pre + current) / 2.0;
+        } else {
+            return current;
+        }
+    }
+
+    // Method2 recursion Time -- O(log(m+n)) -- 2分查找
+    public double findMedianSortedArraysII(int[] nums1, int[] nums2) {
+        int n = nums1.length;
+        int m = nums2.length;
+        int left = (n+m+1)/2;
+        int right = (n+m+2)/2;
+        //将偶数和奇数的情况合并，如果是奇数，会求两次同样的 k 。
+        return (getKth(nums1, 0, n - 1, nums2, 0, m - 1, left) + getKth(nums1, 0, n - 1, nums2, 0, m - 1, right)) * 0.5;
+
+    }
+
+    // 找第K小的数字
+    private int getKth(int[] nums1, int start1, int end1, int[] nums2, int start2, int end2, int k) {
+        int len1 = end1 - start1 + 1;
+        int len2 = end2 - start2 + 1;
+        //让 len1 的长度小于 len2，这样就能保证如果有数组空了，一定是 len1
+        if (len1 > len2) return getKth(nums2, start2, end2, nums1, start1, end1, k);
+        if (len1 == 0) return nums2[start2 + k - 1];
+
+        if (k == 1) return Math.min(nums1[start1], nums2[start2]);
+
+        int i = start1 + Math.min(len1, k / 2) - 1;
+        int j = start2 + Math.min(len2, k / 2) - 1;
+
+        // 每次循环排除掉 k/2 个数
+        if (nums1[i] > nums2[j]) {
+            return getKth(nums1, start1, end1, nums2, j + 1, end2, k - (j - start2 + 1));
+        } else {
+            return getKth(nums1, i + 1, end1, nums2, start2, end2, k - (i - start1 + 1));
+        }
+    }
+  
+  
 
     //===============================================
     public static final void main(String[] args){
