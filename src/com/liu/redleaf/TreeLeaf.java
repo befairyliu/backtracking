@@ -407,7 +407,7 @@ public class TreeLeaf {
         return Math.max(leftSum, rightSum) + root.val;
     }
 
-    // 6. leetcode   最长同值路径
+    // 8. leetcode   最长同值路径
     int res = 0;
     public int longestUnivaluePath(TreeNode root) {
         univalueHelper(root);
@@ -439,7 +439,59 @@ public class TreeLeaf {
         return Math.max(left, right);
     }
 
+    //9. leetcode  面试题32 - I. 从上到下打印二叉树
+    // BFS
+    public static int[] levelOrder(TreeNode root){
+        // check param
+        if(root == null){
+            return new int[]{};
+        }
 
+        Queue<TreeNode> queue = new LinkedList<>();
+        List<Integer> list = new ArrayList<>();
+        queue.add(root);
+        while(!queue.isEmpty()){
+            //remove the head
+            TreeNode current = queue.remove();
+            list.add(current.val);
+
+            if(current.left != null){
+                queue.add(current.left);
+            }
+
+            if(current.right != null){
+                queue.add(current.right);
+            }
+        }
+
+        int[] res = new int[list.size()];
+        for(int i=0; i < list.size(); i++){
+            res[i] = list.get(i);
+        }
+
+        return res;
+    }
+
+    //10. leetcode 面试题 04.06. 后继者
+    // 如果结点 p 的值大于等于 root 的值，说明 p 的后继结点在 root 右子树中，那么就递归到右子树中查找。
+    //如果结点 p 的值小于 root 的值，说明 p 在 root 左子树中，而它的后继结点有两种可能，要么也在左子树中，要么就是 root：
+    //--如果左子树中找到了后继结点，那就直接返回答案。
+    //--如果左子树中没有找到后继结点，那就说明 p 的右儿子为空，那么 root 就是它的后继结点。
+    public TreeNode inorderSuccessor(TreeNode root, TreeNode p) {
+        if(root == null){
+            return null;
+        }
+
+        if(root.val <= p.val){
+            return inorderSuccessor(root.right, p);
+        } else {
+            TreeNode left = inorderSuccessor(root.left, p);
+            return left == null ? root : left;
+        }
+    }
+
+    
+    //=====================================================================
 
     public static void main(String[] args){
 
