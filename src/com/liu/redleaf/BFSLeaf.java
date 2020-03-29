@@ -1,9 +1,11 @@
+package com.liu.redleaf;
 
-
-
-
-
-public int maxDistance(int[][] grid) {
+public class BFSLeaf {
+    
+    //1. leetcode 1162. 地图分析
+    // BFS
+    public int maxDistance(int[][] grid) {
+        //存储每次向四个方向遍历的位移
         int[] dx = {0, 0, 1, -1};
         int[] dy = {1, -1, 0, 0};
         Queue<int[]> queue = new ArrayDeque<>();
@@ -40,3 +42,4 @@ public int maxDistance(int[][] grid) {
         // 返回最后一次遍历到的海洋的距离。
         return grid[point[0]][point[1]] - 1;
     }
+}
