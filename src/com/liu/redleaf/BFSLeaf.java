@@ -33,6 +33,7 @@ public class BFSLeaf {
                 int newX = x + dx[i];
                 int newY = y + dy[i];
                 if (newX < 0 || newX >= n || newY < 0 || newY >= n || grid[newX][newY] != 0) {
+                    //不再执行循环体中continue语句之后的代码，直接进行下一次循环
                     continue;
                 }
                 grid[newX][newY] = grid[x][y] + 1; // 这里我直接修改了原数组，因此就不需要额外的数组来标志是否访问
