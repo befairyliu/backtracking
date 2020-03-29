@@ -44,6 +44,3 @@ public class BFSLeaf {
         return grid[point[0]][point[1]] - 1;
     }
 }
-
-// 遍历图示
-![遍历图示](https://pic2.zhimg.com/v2-7d61163f0eda792ba83499feb0c91d8d_r.jpg)
