@@ -489,7 +489,57 @@ public class TreeLeaf {
             return left == null ? root : left;
         }
     }
+    
+    // 11. leetcode 297 面试题37. 序列化及反序列化二叉树
+    // 序列化为 "[1,2,3,null,null,4,5]"
+    public String serializeII(TreeNode root) {
+        if(root == null) return "[]";
+        String res = "[";
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+        while(!queue.isEmpty()){
+            TreeNode cur = queue.poll();
+            if(cur!=null){
+                res += cur.val+",";
+                queue.offer(cur.left);
+                queue.offer(cur.right);
+            } else {
+                res += "null,";
+            }
+        }
+        //去除最后的一个逗号,
+        res = res.substring(0,res.length()-1);
+        return res += "]";
+    }
 
+    // Decodes your encoded data to tree.
+    public TreeNode deserializeII(String data) {
+        if(data == null || "[]".equals(data)) return null;
+        String res = data.substring(1,data.length()-1);
+        String[] values = res.split(",");
+        int index = 0;
+        TreeNode root = buildTreeNode(values[index++]);
+        Queue<TreeNode> queue = new LinkedList<>();
+        TreeNode current = root;
+        queue.offer(root);
+        while(!queue.isEmpty()){
+            current = queue.poll();
+            current.left = buildTreeNode(values[index++]);
+            current.right = buildTreeNode(values[index++]);
+            if(current.left != null){
+                queue.offer(current.left);
+            }
+            if(current.right!=null){
+                queue.offer(current.right);
+            }
+        }
+        return root;
+    }
+
+    public TreeNode buildTreeNode(String value){
+        if("null".equals(value)) return null;
+        return new TreeNode(Integer.valueOf(value));
+    }
     
     //=====================================================================
 
