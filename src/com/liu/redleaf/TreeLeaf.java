@@ -508,8 +508,36 @@ public class TreeLeaf {
             }
         }
         //去除最后的一个逗号,
-        res = res.substring(0,res.length()-1);
-        return res += "]";
+        res = res.substring(0, res.length() - 1);
+        res += "]";
+        return res;
+    }
+    
+    // 或者下面的方法
+    public String serializeII(TreeNode root) {
+        if(root == null) return "[]";
+        String res = "[";
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+        res += root.val;
+        while(!queue.isEmpty()){
+            TreeNode current = queue.poll();
+            if(current.left != null){
+                res += "," + current.left.val;
+                queue.offer(current.left);
+            } else {
+                res += ",null";
+            }
+
+            if(current.right != null){
+                res += "," + current.right.val;
+                queue.offer(current.right);
+            } else {
+                res += ",null";
+            }
+        }
+        res += "]";
+        return res;
     }
 
     // Decodes your encoded data to tree.
