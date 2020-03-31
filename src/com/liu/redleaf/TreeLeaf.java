@@ -492,7 +492,7 @@ public class TreeLeaf {
     
     // 11. leetcode 297 面试题37. 序列化及反序列化二叉树
     // 序列化为 "[1,2,3,null,null,4,5]"
-    public String serializeII(TreeNode root) {
+    public String serialize(TreeNode root) {
         if(root == null) return "[]";
         String res = "[";
         Queue<TreeNode> queue = new LinkedList<>();
@@ -513,7 +513,7 @@ public class TreeLeaf {
     }
 
     // Decodes your encoded data to tree.
-    public TreeNode deserializeII(String data) {
+    public TreeNode deserialize(String data) {
         if(data == null || "[]".equals(data)) return null;
         String res = data.substring(1,data.length()-1);
         String[] values = res.split(",");
