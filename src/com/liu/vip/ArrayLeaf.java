@@ -1,4 +1,4 @@
-package com.liu;
+package com.liu.vip;
 
 import java.util.*;
 
