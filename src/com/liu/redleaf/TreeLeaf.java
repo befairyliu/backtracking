@@ -569,6 +569,77 @@ public class TreeLeaf {
         return new TreeNode(Integer.valueOf(value));
     }
     
+     //12 leetcode 面试题33. 二叉搜索树的后序遍历序列
+    // 判断一个二叉树是否是后续遍历序列
+    // 左子树 < 根节点 < 右子树
+    public boolean verifyPostorder(int[] postorder) {
+        //check params
+        if(postorder == null || postorder.length < 2){
+            return true;
+        }
+
+        return isPostorder(postorder, 0, postorder.length - 1);
+    }
+
+    public boolean isPostorder(int[] order, int start, int end){
+        if(start >= end){
+            //说明只有一个节点
+            return true;
+        }
+
+        //1.根节点
+        int root = order[end];
+        //2.寻找理论左右子树分割点
+        int i = start;
+        while(order[i] < root){
+            i++;
+        }
+
+        // 理论上的分割点i已找到
+        int divider = i;
+        // 3.检查数组后面的数是否满足二叉搜索树的特点（右子树 > 根节点）
+        for(; i < end; i++){
+            if(order[i] < root){
+                // 如果右子树节点 小于 根节点，那明显不满足条件
+                return false;
+            }
+        }
+
+        //4. 本层满足条件后，再递归检查左右子树
+        boolean left = isPostorder(order, start, divider - 1);
+        boolean right = isPostorder(order, divider, end - 1);
+
+        return  left && right;
+    }
+
+    // 13 leetcode 面试题34. 二叉树中和为某一值的所有路径
+    List<List<Integer>> result = new LinkedList<>();
+    LinkedList<Integer> path = new LinkedList<>();
+    public List<List<Integer>> pathSum(TreeNode root, int sum) {
+        recursionPathSum(root, sum);
+        return result;
+    }
+
+    //Recursion
+    public void recursionPathSum(TreeNode current, int sum){
+        if(current == null){
+            return;
+        }
+        // 添加来链表中
+        path.add(current.val);
+        // 叶子节点
+        if(current.left == null && current.right == null && current.val == sum){
+            result.add(new LinkedList<>(path));
+        }
+
+        // 非叶子节点, 左右子树查找
+        int target = sum - current.val;
+        recursionPathSum(current.left, target);
+        recursionPathSum(current.right, target);
+        // 回溯，去掉之前添加进来的节点
+        path.removeLast();
+    }
+    
     //=====================================================================
 
     public static void main(String[] args){
