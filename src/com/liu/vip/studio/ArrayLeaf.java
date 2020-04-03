@@ -139,4 +139,116 @@ public class ArrayLeaf {
 
         return usedRooms;
     }
+    
+    
+    // 2. leetcode 289. 生命游戏
+    // 方法一：复制原数组进行模拟，
+    // 时间复杂度：O(mn)，
+    // 空间复杂度：O(mn)   为复制数组占用的空间
+    public void gameOfLife(int[][] board) {
+        //相邻细胞的坐标位置向量
+        int[] neighbors = {-1, 0, 1};
+        int rows = board.length;
+        int cols = board[0].length;
+
+        //build copy board
+        int[][] copyBoard = new int[rows][cols];
+        for(int row = 0; row < rows; row++){
+            for(int col = 0; col < cols; col++){
+                copyBoard[row][col] = board[row][col];
+            }
+        }
+
+        //iterate the cell of board
+        for(int row = 0; row < rows; row++){
+            for(int col = 0; col < cols; col++){
+                //对于每个细胞统计其八个相邻位置里的活细胞数量
+                int liveNeighbors = 0;
+                for(int i = 0; i < 3; i++){
+                    for(int j= 0; j < 3; j++){
+                        // neighbors[i] == 0 && neighbors[j] == 0的时候i == 0 && j == 0
+                        // 也就是细胞自己的位置向量
+                        if(!(neighbors[i] == 0 && neighbors[j] == 0)){
+                            int r = (row + neighbors[i]);
+                            int c = (col + neighbors[j]);
+
+                            // 查看相邻的细胞是否是活细胞
+                            if((r < rows && r >= 0) && (c < cols && c >= 0)
+                                    && (copyBoard[r][c] == 1)){
+                                liveNeighbors += 1;
+                            }
+                        }
+                    }
+                }
+
+                // 规则1 或 规则2
+                if((copyBoard[row][col] == 1) && (liveNeighbors < 2 || liveNeighbors > 3)){
+                    board[row][col] = 0;
+                }
+                //规则4
+                if(copyBoard[row][col] == 0 && liveNeighbors == 3){
+                    board[row][col] = 1;
+                }
+            }
+        }
+    }
+
+    //方法二：使用额外的状态
+    // 原数组细胞状态使用额外的状态存储
+    // 2： 0 -> 1 死细胞变成活细胞
+    // -1: 1 -> 0 活细胞变成死细胞
+    public void gameOfLifeII(int[][] board) {
+        //相邻细胞的坐标位置向量
+        int[] neighbors = {-1, 0, 1};
+
+        int rows = board.length;
+        int cols = board[0].length;
+
+        // 遍历面板每一个格子里的细胞
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+
+                // 对于每一个细胞统计其八个相邻位置里的活细胞数量
+                int liveNeighbors = 0;
+
+                for (int i = 0; i < 3; i++) {
+                    for (int j = 0; j < 3; j++) {
+
+                        if (!(neighbors[i] == 0 && neighbors[j] == 0)) {
+                            // 相邻位置的坐标
+                            int r = (row + neighbors[i]);
+                            int c = (col + neighbors[j]);
+
+                            // 查看相邻的细胞是否是活细胞
+                            if ((r < rows && r >= 0) && (c < cols && c >= 0) && (Math.abs(board[r][c]) == 1)) {
+                                liveNeighbors += 1;
+                            }
+                        }
+                    }
+                }
+
+                // 规则 1 或规则 3
+                if ((board[row][col] == 1) && (liveNeighbors < 2 || liveNeighbors > 3)) {
+                    // -1 代表这个细胞过去是活的现在死了
+                    board[row][col] = -1;
+                }
+                // 规则 4
+                if (board[row][col] == 0 && liveNeighbors == 3) {
+                    // 2 代表这个细胞过去是死的现在活了
+                    board[row][col] = 2;
+                }
+            }
+        }
+
+        // 遍历 board 得到一次更新后的状态
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                if (board[row][col] > 0) {
+                    board[row][col] = 1;
+                } else {
+                    board[row][col] = 0;
+                }
+            }
+        }
+    }
 }
