@@ -21,6 +21,31 @@ public class MathLeaf {
         // 其他情况就是最大公约数问题了
         return z % gcd(x, y) == 0;
     }
+    
+    //2. 约瑟夫环——公式法（递推公式）
+    // f(N,M)=(f(N−1,M)+M)%N
+    public int lastRemaining(int n, int m) {
+        int pos = 0;
+        for (int i = 2; i <= n; i++) {
+            pos = (pos + m) % i;
+        }
+        return pos + 1;
+    }
+
+    // 链表法
+    public int lastRemainingII(int n, int m) {
+        ArrayList<Integer> list = new ArrayList<>(n);
+        for (int i = 0; i < n; i++) {
+            list.add(i);
+        }
+        int idx = 0;
+        while (n > 1) {
+            idx = (idx + m - 1) % n;
+            list.remove(idx);
+            n--;
+        }
+        return list.get(0);
+    }
 
     public static void main(String[] args){
 
