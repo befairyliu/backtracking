@@ -1128,7 +1128,551 @@ public class ArrayLeaf {
         }
     }
 
+     //26. leetcode 面试题 01.07. 旋转矩阵
+    // 方法一：原地旋转
+    // matrix[col][n−row−1] = matrix[row][col]
+    public void rotate(int[][] matrix) {
+        int n = matrix.length;
+        for (int i = 0; i < n / 2; ++i) {
+            for (int j = 0; j < (n + 1) / 2; ++j) {
+                int temp = matrix[i][j];
+                matrix[i][j] = matrix[n - j - 1][i];
+                matrix[n - j - 1][i] = matrix[n - i - 1][n - j - 1];
+                matrix[n - i - 1][n - j - 1] = matrix[j][n - i - 1];
+                matrix[j][n - i - 1] = temp;
+            }
+        }
+    }
 
+
+    // 方法二：用翻转代替旋转
+    // 水平翻转 + 对角线翻转
+    // 水平翻转： matrix[row][col] → matrix[n−row−1][col]
+    // 对角线翻转：matrix[row][col] → matrix[col][row]
+    public void rotateII(int[][] matrix) {
+        int n = matrix.length;
+        // 水平翻转
+        for (int i = 0; i < n/2; i++) {
+            for (int j = 0; j < n; j++) {
+                int temp = matrix[i][j];
+                matrix[i][j] = matrix[n - i - 1][j];
+                matrix[n - i - 1][j] = temp;
+            }
+        }
+
+        //主对角线翻转
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < i; j++) {
+                int temp = matrix[i][j];
+                matrix[i][j] = matrix[j][i];
+                matrix[j][i] = temp;
+            }
+        }
+    }
+
+    // 27. leetcode 56 合并区间
+    // 给出一个区间的集合，请合并所有重叠的区间。
+    // 输入: [[1,3],[2,6],[8,10],[15,18]]
+    // 输出: [[1,6],[8,10],[15,18]]
+    public int[][] merge(int[][] intervals) {
+        int length = intervals.length;
+        if (length <= 1) {
+            return intervals;
+        }
+
+        // sort the intervals
+        Arrays.sort(intervals, new Comparator<int[]>() {
+            @Override
+            public int compare(int[] o1, int[] o2) {
+                return o1[0] - o2[0];
+            }
+        });
+
+        List<int[]> list = new ArrayList<>();
+        int currentStart = intervals[0][0];
+        int currentEnd = intervals[0][1];
+
+        for (int i = 1; i < length; i++) {
+            int newStart = intervals[i][0];
+            int newEnd = intervals[i][1];
+
+            if(currentEnd >= newStart){
+                if (currentEnd < newEnd) currentEnd = newEnd;
+            } else {
+                list.add(new int[] {currentStart, currentEnd});
+                currentStart = newStart;
+                currentEnd = newEnd;
+            }
+        }
+
+        // 最后一个
+        list.add(new int[] {currentStart, currentEnd});
+
+        return list.toArray(new int[list.size()][]);
+
+//        int[][] results = new int[list.size()][2];
+//        for (int j = 0; j < list.size(); j++) {
+//            results[j] = list.get(j);
+//        }
+//
+//        return results;
+    }
+  
+    // 28. leetcode 542. 01 矩阵
+    // 给定一个由 0 和 1 组成的矩阵，找出每个元素到最近的 0 的距离。两个相邻元素间的距离为 1 。
+    // 输入:
+    //
+    //0 0 0
+    //0 1 0
+    //1 1 1
+    //输出:
+    //
+    //0 0 0
+    //0 1 0
+    //1 2 1
+    //
+    // 注意：
+    // 给定矩阵的元素个数不超过 10000。
+    // 给定矩阵中至少有一个元素是 0。
+    // 矩阵中的元素只在四个方向上相邻: 上、下、左、右。
+    public int[][] updateMatrix(int[][] matrix) {
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+        //build copy board
+        int[][] copyMatrix = new int[rows][cols];;
+        for(int row = 0; row < rows; row++){
+            for(int col = 0; col < cols; col++){
+                copyMatrix[row][col] = matrix[row][col];
+            }
+        }
+
+        Deque<int[]> queue = new LinkedList<>();
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                // BFS 上下左右查找
+                queue.offer(new int[] {i, j});
+                matrix[i][j] = distanceBFS(copyMatrix, queue);
+                queue.clear();
+            }
+        }
+
+        return matrix;
+    }
+
+    private int distanceBFS (int[][] copyMatrix, Deque<int[]> queue) {
+        // init
+        int rows = copyMatrix.length;
+        int cols = copyMatrix[0].length;
+        // 上下左右
+        int[] dx = new int[] {0, 0, -1, 1 };
+        int[] dy = new int[] {-1, 1, 0, 0 };
+
+        int dis = 0;
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            for (int i = 0; i < size; i++){
+                int[] dot = queue.pop();
+                int X = dot[0];
+                int Y = dot[1];
+                if (copyMatrix[X][Y] == 0) {
+                    queue.clear();
+                    return dis;
+                } else {
+                    // 该位置还有周边元素时，添加到队列中
+                    for (int k = 0; k < 4; k++) {
+                        int x = X + dx[k];
+                        int y = Y + dy[k];
+                        // 边界检查
+                        if (0 <= x && x < rows && 0 <= y && y < cols) {
+                            queue.offer(new int[] {x, y});
+                        }
+                    }
+                }
+
+                // 这一轮循环完毕，未找到0距离+1，继续循环
+                if (i == size - 1) {
+                    dis++;
+                }
+            }
+        }
+
+        return dis;
+    }
+
+    // 方法2：BFS方法优化
+    public int[][] updateMatrixII(int[][] matrix) {
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+        // 找到所有值为0的点
+        Queue<int[]> queue = new LinkedList<>();
+        for(int row = 0; row < rows; row++){
+            for(int col = 0; col < cols; col++){
+                if (matrix[row][col] == 0) {
+                    queue.offer(new int[] {row, col});
+                } else {
+                    matrix[row][col] = -1;
+                }
+            }
+        }
+        // 把所有非0的部分根据距离更新一遍
+        // 上下左右
+        int[] dx = new int[] {0, 0, -1, 1 };
+        int[] dy = new int[] {-1, 1, 0, 0 };
+        while (!queue.isEmpty()) {
+            int[] point = queue.poll();
+            int x = point[0];
+            int y = point[1];
+            for (int i = 0; i < 4; i++) {
+                int newX = x + dx[i];
+                int newY = y + dy[i];
+                if (0 <= newX && newX < rows
+                        && 0 <= newY && newY < cols
+                        && matrix[newX][newY] == -1) {
+                    matrix[newX][newY] = matrix[x][y] + 1;
+                    queue.offer(new int[] {newX, newY});
+                }
+            }
+        }
+        return matrix;
+    }
+
+    // 29. leetcode 55. 跳跃游戏
+    // 给定一个非负整数数组，你最初位于数组的第一个位置。
+    // 数组中的每个元素代表你在该位置可以跳跃的最大长度。
+    // 判断你是否能够到达最后一个位置。
+    // 输入: [2,3,1,1,4]
+    // 输出: true
+    // 输入: [3,2,1,0,4]
+    // 输出: false
+    public boolean canJump(int[] nums) {
+        // check params
+        if (nums.length <= 1) {
+            return true;
+        }
+
+        // 最远能到达的位置
+        int maxIndex = nums[0];
+        for (int i = 1; i < nums.length; i++) {
+            // 最大步数已经到不了当前位置了
+            if (i > maxIndex) {
+                return false;
+            }
+            maxIndex = Math.max(maxIndex, i + nums[i]);
+        }
+        // 最后是否可以到达末尾位置
+        return true;
+    }
+
+    // 30. leetcode 11. 盛最多水的容器
+    // 给你 n 个非负整数 a1，a2，...，an，每个数代表坐标中的一个点 (i, ai) 。
+    // 在坐标内画 n 条垂直线，垂直线 i 的两个端点分别为 (i, ai) 和 (i, 0)。
+    // 找出其中的两条线，使得它们与 x 轴共同构成的容器可以容纳最多的水。
+    //
+    // 说明：你不能倾斜容器，且 n 的值至少为 2。
+    //
+    // 方法1: 暴力遍历计算
+    public int maxArea(int[] height) {
+        int len = height.length;
+        if (len < 2) return 0;
+        int max = 0;
+        for (int i = 0; i < len - 1; i++) {
+            for (int j = i + 1; j < len; j++) {
+                int currentVolume = (j - i) * Math.min(height[i], height[j]);
+                max = Math.max(max, currentVolume);
+            }
+        }
+
+        return max;
+    }
+
+    // 方法2: 双指针法
+    public int maxAreaII(int[] height) {
+        int len = height.length;
+        if (len < 2) return 0;
+        int max = 0; // max volume
+        int left = 0, right = len - 1;
+        while (left < right) {
+            int currentVolume = (right - left) * Math.min(height[left], height[right]);
+            max = Math.max(max, currentVolume);
+            // 指针移动
+            if (height[left] < height[right]) {
+                left++;
+            } else {
+                right--;
+            }
+        }
+
+        return max;
+    }
+
+    // 31. leetcode 347. 前 K 个高频元素
+    // 给定一个非空的整数数组，返回其中出现频率前 k 高的元素。
+    // 输入: nums = [1,1,1,2,2,3], k = 2
+    // 输出: [1,2]
+    // 你可以假设给定的 k 总是合理的，且 1 ≤ k ≤ 数组中不相同的元素的个数。
+    // 你的算法的时间复杂度必须优于 O(n log n) , n 是数组的大小。
+    public List<Integer> topKFrequent(int[] nums, int k) {
+
+        Map<Integer, Integer> map = new HashMap();
+        for (int i = 0; i < nums.length; i++) {
+            if (map.containsKey(nums[i])) {
+                map.put(nums[i], map.get(nums[i]) + 1);
+            } else {
+                map.put(nums[i], 1);
+            }
+        }
+
+        Node[] nodes = new Node[map.size()];
+        Set<Integer> set = map.keySet();
+        Iterator<Integer> it = set.iterator();
+        int j = 0;
+        while (it.hasNext()) {
+            int key = it.next();
+            int value = map.get(key);
+            nodes[j++] = new Node(key, map.get(value));
+        }
+
+        Arrays.sort(nodes, new Comparator<Node>(){
+            @Override
+            public int compare(Node o1, Node o2) {
+                return o2.frequent - o1.frequent;
+            }
+        });
+
+        List<Integer> list = new LinkedList<>();
+        for (int idx = 0; idx < k; idx++) {
+            list.add(nodes[idx].value);
+        }
+
+        return list;
+    }
+
+    public static class Node {
+        private int value;
+        private int frequent;
+        public Node (int value, int frequent) {
+            this.value = value;
+            this.frequent = frequent;
+        }
+    }
+
+    // 方法2： 最大堆方法
+    public List<Integer> topKFrequentII(int[] nums, int k) {
+        // check input params
+        if (nums == null || nums.length <= 0) return null;
+
+        Map<Integer, Integer> map = new HashMap();
+        for (int i = 0; i < nums.length; i++) {
+            map.put(nums[i], map.getOrDefault(nums[i], 0) + 1);
+        }
+
+        // 最小顶堆
+        PriorityQueue<Integer> heap = new PriorityQueue<>((o1, o2) -> map.get(o1) - map.get(o2));
+
+        for (int key: map.keySet()) {
+            heap.offer(key);
+            if (heap.size() > k) {
+                // 移除顶部小的值
+                heap.poll();
+            }
+        }
+
+        List<Integer> list = new LinkedList<>();
+        while (!heap.isEmpty()) {
+            list.add(heap.poll());
+        }
+        Collections.reverse(list);
+
+        return list;
+    }
+
+    // 方法3: 桶排序
+    public List<Integer> topKFrequentIII(int[] nums, int k) {
+        List<Integer> ans = new ArrayList<>();
+        if (nums == null) {
+            return ans;
+        }
+        // 记录每个元素的频率
+        Map<Integer,Integer> map = new HashMap<>();
+        for (int n : nums) {
+            map.put(n, map.getOrDefault(n, 0) + 1);
+        }
+        // 按照 map 中元素的频率来创建数组，高频率的元素位于数组最后边
+        List<Integer>[] tmp = new List[nums.length + 1];
+        for (int key : map.keySet()) {
+            // 定义 i 来接收每个元素的频率值
+            int i = map.get(key);
+            if (tmp[i] == null) {
+                tmp[i] = new ArrayList();
+            }
+            // 将对应频率的元素放入以频率为下标的数组中
+            tmp[i].add(key);
+        }
+        // 逆向找出前 k 高频率的元素
+        for (int i = tmp.length - 1; i >= 0 && ans.size() < k; i--) {
+            if (tmp[i] == null) {
+                continue;
+            }
+            // 将当前频率下的元素放入结果集 ans 中
+            ans.addAll(tmp[i]);
+        }
+        return ans;
+    }
+
+    // 32. leetcode 215. 数组中的第K个最大元素
+    // 在未排序的数组中找到第 k 个最大的元素。请注意，你需要找的是数组排序后的第 k 个最大的元素，
+    // 而不是第 k 个不同的元素。你可以假设 k 总是有效的，且 1 ≤ k ≤ 数组的长度。
+    // 输入: [3,2,1,5,6,4] 和 k = 2
+    // 输出: 5
+    // 输入: [3,2,3,1,2,4,5,5,6] 和 k = 4
+    // 输出: 4
+    public int findKthLargest(int[] nums, int k) {
+        //check the input params
+        if (nums == null || nums.length <= 0) return 0;
+
+        // 最小顶堆方法
+//        PriorityQueue<Integer> heap = new PriorityQueue<>(k);
+        PriorityQueue<Integer> heap = new PriorityQueue<>();
+        for (int i = 0; i < nums.length; i++) {
+//            if (heap.size() < k) {
+//                heap.offer(nums[i]);
+//            } else {
+//                if (heap.peek() < nums[i]) {
+//                    heap.poll();
+//                    heap.offer(nums[i]);
+//                }
+//            }
+
+            heap.offer(nums[i]);
+            if (heap.size() > k) {
+                heap.poll();
+            }
+        }
+
+        // 返回堆顶元素（第K最大元素）
+        return heap.poll();
+    }
+  
+    // 33. leetcode 200.岛屿数量
+    // 给你一个由 '1'（陆地）和 '0'（水）组成的的二维网格，请你计算网格中岛屿的数量。
+    //岛屿总是被水包围，并且每座岛屿只能由水平方向和/或竖直方向上相邻的陆地连接形成。
+    //此外，你可以假设该网格的四条边均被水包围。
+    //示例 1:
+    //
+    //输入:
+    //11110
+    //11010
+    //11000
+    //00000
+    //输出: 1
+    // 方法1：DFS 深度优先搜索的次数
+    public int numIslands(char[][] grid) {
+        if (grid == null || grid.length == 0) {
+            return 0;
+        }
+
+        int rows = grid.length;
+        int cols = grid[0].length;
+        int numIslands = 0;
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (grid[i][j] == '1') {
+                    numIslands++;
+                    islandDFS(grid, i, j);
+                }
+            }
+        }
+
+        return numIslands;
+    }
+
+    public void islandDFS(char[][] grid, int row, int col) {
+        int rows = grid.length;
+        int cols = grid[0].length;
+
+        if (row < 0 || row >= rows || col < 0 || col >= cols || grid[row][col] == '0') {
+            return;
+        }
+
+        grid[row][col] = '0';
+        islandDFS(grid, row - 1, col);
+        islandDFS(grid, row + 1, col);
+        islandDFS(grid, row, col - 1);
+        islandDFS(grid, row, col + 1);
+    }
+
+
+    // 方法2： BFS广度优先搜索的次数
+    public int numIslandsII(char[][] grid) {
+        if (grid == null || grid.length == 0) {
+            return 0;
+        }
+
+        int rows = grid.length;
+        int cols = grid[0].length;
+        int numIslands = 0;
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (grid[i][j] == '1') {
+                    numIslands++;
+                    grid[i][j] = '0';
+                    Queue<Integer> neighbors = new LinkedList<>();
+                    neighbors.add(i * cols + j);
+                    while (!neighbors.isEmpty()){
+                        int id = neighbors.poll();
+                        int row = id / cols;
+                        int col = id % cols;
+                        if (row - 1 >=0 && grid[row - 1][col] == '1') {
+                            neighbors.add((row - 1) * cols + col);
+                            grid[row - 1][col] = '0';
+                        }
+                        if (row + 1 < cols && grid[row+1][col] == '1') {
+                            neighbors.add((row+1) * cols + col);
+                            grid[row+1][col] = '0';
+                        }
+                        if (col - 1 >= 0 && grid[row][col-1] == '1') {
+                            neighbors.add(row * cols + col-1);
+                            grid[row][col-1] = '0';
+                        }
+                        if (col + 1 < cols && grid[row][col+1] == '1') {
+                            neighbors.add(row * cols + col+1);
+                            grid[row][col+1] = '0';
+                        }
+                    }
+                }
+            }
+        }
+
+        return numIslands;
+    }
+
+    // 34. leetcode 1248. 统计「优美子数组」
+    // 给你一个整数数组 nums 和一个整数 k。
+    // 如果某个 连续 子数组中恰好有 k 个奇数数字，我们就认为这个子数组是「优美子数组」。
+    // 请返回这个数组中「优美子数组」的数目。
+    // 输入：nums = [1,1,2,1,1], k = 3
+    // 输出：2
+    // 解释：包含 3 个奇数的子数组是 [1,1,2,1] 和 [1,2,1,1] 。
+
+    public int numberOfSubarrays(int[] nums, int k) {
+        int n = nums.length;
+        int[] odd = new int[n + 2];
+        int ans = 0, cnt = 0;
+        for (int i = 0; i < n; ++i) {
+            if (nums[i] % 2 == 1) {
+                odd[++cnt] = i;
+            }
+        }
+        //init
+        odd[0] = -1;
+        odd[++cnt] = n;
+        for (int i = 1; i + k <= cnt; ++i) {
+            ans += (odd[i] - odd[i - 1]) * (odd[i + k] - odd[i + k - 1]);
+        }
+        return ans;
+    }
+  
     //===============================================
     public static final void main(String[] args){
 
