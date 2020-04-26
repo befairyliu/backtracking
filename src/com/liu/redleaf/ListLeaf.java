@@ -213,6 +213,110 @@ public class ListLeaf {
         return dummy.next;
     }
     
+
+//8. leetcode 445. 两数相加 II
+    public ListNode addTwoNumbersII (ListNode l1, ListNode l2){
+        Stack<Integer> stack1 = new Stack<>();
+        Stack<Integer> stack2 = new Stack<>();
+        ListNode result = null;
+
+        while(l1 != null){
+            stack1.push(l1.val);
+            l1 = l1.next;
+        }
+
+        while(l2 != null){
+            stack2.push(l2.val);
+            l2 = l2.next;
+        }
+        //进位初始化
+        int carry = 0;
+        while(!stack1.isEmpty() || !stack2.isEmpty() || carry > 0){
+            int a = stack1.isEmpty() ? 0 : stack1.pop();
+            int b = stack2.isEmpty() ? 0 : stack2.pop();
+            int sum = a + b + carry;
+            carry = sum / 10;
+            ListNode temp = new ListNode(sum % 10);
+            temp.next = result;
+            result = temp;
+        }
+
+        return result;
+    }
+
+    // 9. leetcode 23. 合并K个排序链表
+    // 合并 k 个排序链表，返回合并后的排序链表。请分析和描述算法的复杂度。
+    // 方法1： 分而治之， 链表两两合并
+    public ListNode mergeKLists(ListNode[] lists) {
+        if (lists == null || lists.length <= 0) return null;
+        int length = lists.length;
+        if (length == 1 ) {
+            return lists[0];
+        }
+
+        if (length == 2) {
+            return mergeLists(lists[0], lists[1]);
+        }
+
+        // 二分法
+        int mid = length / 2;
+        ListNode[] list1 = new ListNode[mid];
+        for (int i = 0; i < mid; i++ ) {
+            list1[i] = lists[i];
+        }
+
+        ListNode[] list2 = new ListNode[length - mid];
+        for (int i = mid; i < length; i++ ) {
+            list2[i - mid] = lists[i];
+        }
+
+        return mergeLists(mergeKLists(list1), mergeKLists(list2));
+    }
+
+    // merge two list node
+    private ListNode mergeLists(ListNode l1, ListNode l2) {
+        if (l1 == null) return l2;
+        if (l2 == null) return l1;
+
+        ListNode dummy = null;
+        if (l1.val < l2.val) {
+            dummy = l1;
+            dummy.next = mergeLists(l1.next, l2);
+        } else {
+            dummy = l2;
+            dummy.next = mergeLists(l1, l2.next);
+        }
+        return dummy.next;
+    }
+
+    // 方法2： 优先级队列
+    public ListNode mergeKListsII(ListNode[] lists) {
+        if (lists == null || lists.length <= 0) return null;
+        PriorityQueue<ListNode> queue = new PriorityQueue<>(new Comparator<ListNode>() {
+            @Override
+            public int compare(ListNode o1, ListNode o2) {
+                return o1.val - o2.val;
+            }
+        });
+        ListNode dummy = new ListNode(-1);
+        ListNode current = dummy;
+        //1. 把lists中的node添加进队列
+        for (ListNode node : lists) {
+            if (node != null) queue.offer(node);
+        }
+
+        //2. 从队列中把node排序
+        while (!queue.isEmpty()) {
+            current.next = queue.poll();
+            current = current.next;
+            if (current.next != null) {
+                queue.offer(current.next);
+            }
+        }
+
+        return dummy;
+    }
+
     
     //===================================================================
 
