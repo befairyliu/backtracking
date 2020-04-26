@@ -215,7 +215,275 @@ public class StringLeaf {
         return s1.contains(s2);
     }
     
-    
+    // 8. leetcode 65 面试题20. 表示数值的字符串
+    public boolean isNumber(String s) {
+        if(s == null || s.length() == 0){
+            return false;
+        }
+        //标记是否遇到相应情况
+        boolean numSeen = false;
+        boolean dotSeen = false;
+        boolean eSeen = false;
+        char[] str = s.trim().toCharArray();
+        for(int i = 0;i < str.length; i++){
+            if(str[i] >= '0' && str[i] <= '9'){
+                numSeen = true;
+            } else if(str[i] == '.'){
+                //.之前不能出现.或者e
+                if(dotSeen || eSeen){
+                    return false;
+                }
+                dotSeen = true;
+            } else if(str[i] == 'e' || str[i] == 'E'){
+                //e之前不能出现e，必须出现数
+                if(eSeen || !numSeen){
+                    return false;
+                }
+                eSeen = true;
+                numSeen = false;//重置numSeen，排除123e或者123e+的情况,确保e之后也出现数
+            } else if(str[i] == '-' || str[i] == '+'){
+                //+-出现在0位置或者e/E的后面第一个位置才是合法的
+                if(i != 0 && str[i-1] != 'e' && str[i-1] != 'E'){
+                    return false;
+                }
+            } else {//其他不合法字符
+                return false;
+            }
+        }
+        return numSeen;
+    }
+
+    //9. leetcode 1111. 有效括号的嵌套深度
+    // 奇数层的 ( 分配给 A，偶数层的 ( 分配给 B
+    public int[] maxDepthAfterSplit(String seq){
+
+        int[] res = new int[seq.length()];
+        int index = 0;
+        int depth = 0;
+        for(char c : seq.toCharArray()){
+            if(c == '('){
+                // 当前深度增加
+                depth += 1;
+                res[index++] = depth % 2;
+            } else if(c == ')'){
+                res[index++] = depth % 2;
+                depth -= 1;
+            }
+        }
+
+        return res;
+    }
+
+    //10. leetcode 8. 字符串转换整数 (atoi)
+    public int String2Int(String str) {
+        str = str.trim();
+        if(str.length() == 0){
+            return 0;
+        }
+        char[] chars = str.toCharArray();
+        int length = chars.length;
+        int idx = 0;
+        boolean isNegative = false;
+        if(chars[idx] == '-') {
+            // 负号
+            isNegative = true;
+            idx++;
+        } else if(chars[idx] == '+') {
+            // 正号
+            idx++;
+        } else if( !Character.isDigit(chars[idx])){
+            // 其他符号
+            return 0;
+        }
+
+        int res = 0;
+        while(idx < length && Character.isDigit(chars[idx])){
+            int digit = chars[idx] - '0';
+            if(res > (Integer.MAX_VALUE - digit) / 10 ){
+                // 本来应该是 res * 10 + digit > Integer.MAX_VALUE
+                return isNegative ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+            }
+
+            res = res * 10 + digit;
+            idx++;
+        }
+
+        if(isNegative){
+            res = -res;
+        }
+
+        return res;
+    }
+
+    //11. leetcode 151. 翻转字符串里的单词
+//    public String reverseWords(String s) {
+//        String[] strs = s.trim().split(" "); // 删除首尾空格，分割字符串
+//        StringBuilder res = new StringBuilder();
+//        for(int i = strs.length - 1; i >= 0; i--) { // 倒序遍历单词列表
+//            if(strs[i].equals("")) continue; // 遇到空单词则跳过
+//            res.append(strs[i] + " "); // 将单词拼接至 StringBuilder
+//        }
+//        return res.toString().trim(); // 转化为字符串，删除尾部空格，并返回
+//    }
+
+    public String reverseWords(String s) {
+        String[] strs = s.trim().split(" ");
+        StringBuilder res = new StringBuilder();
+        int count = strs.length - 1;
+        while(count >= 0){
+            if(strs[count].equals("")){
+                count--;
+                continue;
+            }
+            res.append(strs[count--] + " ");
+        }
+
+        //移除尾部空格，并返回
+        return res.toString().trim();
+    }
+
+    // 方法二：双端队列
+    public String reverseWordsII(String s) {
+        int left = 0, right = s.length() - 1;
+        // 去掉字符串开头的空白字符
+        while (left <= right && s.charAt(left) == ' ') ++left;
+
+        // 去掉字符串末尾的空白字符
+        while (left <= right && s.charAt(right) == ' ') --right;
+
+        Deque<String> d = new ArrayDeque();
+        StringBuilder word = new StringBuilder();
+
+        while (left <= right) {
+            char c = s.charAt(left);
+            if ((word.length() != 0) && (c == ' ')) {
+                // 将单词 push 到队列的头部
+                d.offerFirst(word.toString());
+                word.setLength(0);
+            } else if (c != ' ') {
+                word.append(c);
+            }
+            ++left;
+        }
+        d.offerFirst(word.toString());
+
+        return String.join(" ", d);
+    }
+
+    // 12. leetcode 402. 移掉K位数字, 使剩下数最小
+    // 给定一个以字符串表示的非负整数 num，移除这个数中的 k 位数字，使得剩下的数字最小。
+    // 输入: num = "1432219", k = 3
+    // 输出: "1219"
+    // 解释: 移除掉三个数字 4, 3, 和 2 形成一个新的最小的数字 1219。
+    // 输入: num = "10200", k = 1
+    // 输出: "200"
+    // 解释: 移掉首位的 1 剩下的数字为 200. 注意输出不能有任何前导零。
+    public String removeKdigits(String num, int k) {
+        String res = "";
+        char[] chars = num.toCharArray();
+        Stack<Character> stack = new Stack();
+        stack.push(chars[0]);
+        // 1. 当前一个数字比当前数字大的时，则移除
+        int count = 0; // 当前移除数字个数
+        for (int i = 1; i < chars.length; i++) {
+            while (!stack.isEmpty() && stack.peek() > chars[i] && count < k) {
+                stack.pop();
+                count++;
+            }
+
+            // 处理前导零, 并加入栈中
+            if (!stack.isEmpty() || chars[i] != '0') {
+                stack.push(chars[i]);
+            }
+        }
+
+        // 2.假如移除的数据少于k个，则移除最后k-count个不为0的数
+        if (count < k) {
+            while (count < k && !stack.isEmpty()) {
+                stack.pop();
+                count++;
+            }
+        }
+        // 3.拼接成字符串
+        while (!stack.isEmpty()) {
+            res = stack.pop() + res;
+        }
+
+        return res.length() > 0 ? res : "0";
+    }
+
+    // 13. leetcode 面试题 01.01 判定字符是否唯一
+    // 实现一个算法，确定一个字符串 s 的所有字符是否全都不同。
+    // 输入: s = "leetcode"
+    // 输出: false
+    // 0 <= len(s) <= 100
+    //如果你不使用额外的数据结构，会很加分。
+    public boolean isUnique(String str) {
+//        // Method 1:
+//        // check input params
+//        if (str == null || str.length() <= 1) return true;
+//        // iteration the str
+//        for (int i = 0; i < str.length(); i++) {
+//            for (int j = i + 1; j < str.length(); j++) {
+//                if (str.charAt(i) == str.charAt(j)) return false;
+//            }
+//        }
+
+        // Method 2:
+        for (int i = 0; i < str.length(); i++) {
+            if (str.indexOf(str.charAt(i)) != i) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // 14. leetcode 316.去除重复字母
+    // 给你一个仅包含小写字母的字符串，请你去除字符串中重复的字母，
+    // 使得每个字母只出现一次。需保证返回结果的字典序最小（要求不能打乱其他字符的相对位置）。
+    // 输入: "cbacdcbc"
+    // 输出: "acdb"
+    // 方法1： 单调栈
+    public String removeDuplicateLetters(String s) {
+        // 1.入参检查
+        if (s.isEmpty() || s.length() < 2) {
+            return s;
+        }
+
+        // 2.统计字符出现次数
+        int[] count = new int[26];
+        char[] chars = s.toCharArray();
+        for (char c : chars) {
+            count[c - 'a']++;
+        }
+
+        // 3.set记录字符添加情况
+        HashSet<Character> set = new HashSet<>();
+        Stack<Character> stack = new Stack<>();
+
+        // 4.遍历所有字符，并进行字典排序入栈
+        for (int i = 0; i < s.length(); i++) {
+            char cur = s.charAt(i);
+            if (!set.contains(cur)) {
+                while (!stack.isEmpty() && cur < stack.peek() && count[stack.peek() - 'a'] > 0) {
+                    set.remove(stack.pop());
+                }
+                stack.push(cur);
+                set.add(cur);
+            }
+            //每遍历一个元素，操作完成，数值减一
+            count[cur - 'a']--;
+        }
+
+        // 5.字符串拼接
+        StringBuilder res = new StringBuilder();
+        while (!stack.isEmpty()) {
+            res.insert(0, stack.pop());
+        }
+
+        return res.toString();
+    }
 
     //=======================================
     public static void main(String[] args){
