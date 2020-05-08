@@ -134,7 +134,85 @@ public class DPLeaf {
         return dp[amount] > amount ? - 1: dp[amount];
     }
 
+    //4. leetcode 983. 最低票价
+    // 输入：days = [1,4,6,7,8,20], costs = [2,7,15]
+    // 输出：11
+    // 输入：days = [1,2,3,4,5,6,7,8,9,10,30,31], costs = [2,7,15]
+    // 输出：17
+    // 提示：
+    // 1 <= days.length <= 365
+    // 1 <= days[i] <= 365
+    // days 按顺序严格递增
+    // costs.length == 3
+    // 1 <= costs[i] <= 1000
+    public int mincostTickets(int[] days, int[] costs) {
+        // check input params
+        if (days == null || days.length == 0
+            || costs == null || costs.length == 0) {
+            return 0;
+        }
 
+        // dp[i]表示第i天花费的最低票价
+        int[] dp = new int[days[days.length - 1] + 1];
+
+        // init
+        dp[0] = 0;
+        // 标记接下来需要买票的日子
+        for (Integer day : days ) {
+            dp[day] = Integer.MAX_VALUE;
+        }
+
+        // 通过转换方程计算dp
+        for (int i = 1; i < dp.length; i++) {
+            // 不需要买票时, 花费就是前一天的花费
+            if (dp[i] == 0 ) {
+                dp[i] = dp[i - 1];
+                continue;
+            }
+
+            // 当天需要买票时
+            // 一天
+            int n1 = dp[i - 1] + costs[0];
+            // 当前日子超过7天
+            int n7 = i > 7 ? dp[i - 7] + costs[1] : costs[1];
+            // 当前日子超过30天
+            int n30 = i > 30 ? dp[i - 30] + costs[2] : costs[2];
+            // 取三者最小值赋值给dp[i]
+            dp[i] = Math.min(Math.min(n1, n7), n30);
+        }
+
+        return dp[dp.length - 1];
+        //return dp[days[days.length - 1]];
+    }
+
+    
+    // leetcode 221. 最大正方形
+    // 在一个由 0 和 1 组成的二维矩阵内，找到只包含 1 的最大正方形，并返回其面积。
+    public int maximalSquare(char[][] matrix) {
+        int maxSide = 0;
+        if (matrix == null || matrix.length == 0 || matrix[0].length == 0) {
+            return maxSide;
+        }
+        int rows = matrix.length, columns = matrix[0].length;
+        // dp[i][j]表示以matrix[i][j]为右下角正方形的最长边长
+        int[][] dp = new int[rows][columns];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                if (matrix[i][j] == '1') {
+                    if (i == 0 || j == 0) {
+                        dp[i][j] = 1;
+                    } else {
+                        dp[i][j] = Math.min(Math.min(dp[i - 1][j], dp[i][j - 1]), dp[i - 1][j - 1]) + 1;
+                    }
+                    maxSide = Math.max(maxSide, dp[i][j]);
+                }
+            }
+        }
+        int maxSquare = maxSide * maxSide;
+        return maxSquare;
+    }  
+
+    
     public static final void main(String[] args) {
 
         DPLeaf instance = new DPLeaf();
