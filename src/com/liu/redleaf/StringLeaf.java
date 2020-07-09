@@ -484,6 +484,193 @@ public class StringLeaf {
 
         return res.toString();
     }
+    
+    // 15. leetcode 76. 最小覆盖子串
+    public static String minWindow(String s, String t) {
+        if (s == null || s == "" || t == null || t == "" || s.length() < t.length()) {
+            return "";
+        }
+        //用来统计t中每个字符出现次数
+        int[] needs = new int[128];
+        //用来统计滑动窗口中每个字符出现次数
+        int[] window = new int[128];
+
+        for (int i = 0; i < t.length(); i++) {
+            needs[t.charAt(i)]++;
+        }
+
+        int left = 0;
+        int right = 0;
+
+        String res = "";
+
+        //目前有多少个字符
+        int count = 0;
+
+        //用来记录最短需要多少个字符。
+        int minLength = s.length() + 1;
+
+        while (right < s.length()) {
+            char ch = s.charAt(right);
+            window[ch]++;
+            if (needs[ch] > 0 && needs[ch] >= window[ch]) {
+                count++;
+            }
+
+            //移动到不满足条件为止
+            while (count == t.length()) {
+                ch = s.charAt(left);
+                if (needs[ch] > 0 && needs[ch] >= window[ch]) {
+                    count--;
+                }
+                if (right - left + 1 < minLength) {
+                    minLength = right - left + 1;
+                    res = s.substring(left, right + 1);
+
+                }
+                window[ch]--;
+                left++;
+
+            }
+            right++;
+
+        }
+        return res;
+    }
+
+
+    //16. leetcode 680 验证回文字符串 Ⅱ
+    // 左右双指针算法
+    public boolean validPalindrome(String s) {
+        int left = 0;
+        int right = s.length() - 1;
+        while (left < right) {
+            if (s.charAt(left) != s.charAt(right)) {
+                return validPalindromeHelper(s, left + 1, right)
+                    || validPalindromeHelper(s, left, right - 1);
+            }
+
+            left++;
+            right--;
+        }
+
+        return true;
+    }
+
+    public boolean validPalindromeHelper(String s, int left, int right) {
+        while (left < right) {
+            if (s.charAt(left) != s.charAt(right)) {
+                return false;
+            }
+
+            left++;
+            right--;
+        }
+
+        return true;
+    }
+
+    // 17. leetcode 1143. 最长公共子序列
+    public int longestCommonSubsequence(String text1, String text2) {
+        return 0;
+    }
+
+
+    // 18. leetcode 394. 字符串解码
+    // s = "3[a]2[bc]", 返回 "aaabcbc".
+    // s = "3[a2[c]]", 返回 "accaccacc".
+    // s = "2[abc]3[cd]ef", 返回 "abcabccdcdcdef".
+    //
+    public String decodeString(String s) {
+        String res = "";
+        // check input params
+        if (s.trim().isEmpty()) {
+            return res;
+        }
+
+        char[] chars = s.toCharArray();
+        Stack stack = new Stack();
+        int num = 0; // 计算数字时用
+        for (char c: chars) {
+            if (Character.isDigit(c)) {
+                // 1. 数字则直接计算
+                num = num * 10 + c - '0';
+            } else if (c == '[') {
+                // 2. 左括号, 先要把前面的数字放进去, 左中括号不用入栈
+                stack.push(num);
+                num = 0;
+            } else if (c == ']') {
+                // 3. 右括号, 出栈, 获取局部字符串再根据前面的数字得到乘次数再放入stack
+                String str = decodeHelper(stack);
+                int times = (int) stack.pop();
+                String tempStr = String.join("", Collections.nCopies(times, str));
+                stack.push(tempStr);
+            } else {
+                // 4. 正常字符，放String类型
+                stack.push(String.valueOf(c));
+            }
+        }
+
+        return new StringBuilder(decodeHelper(stack)).reverse().toString();
+    }
+
+    // 计算[]内的字符串
+    public String decodeHelper(Stack stack) {
+        StringBuilder sb = new StringBuilder();
+        while (!stack.isEmpty() && stack.peek() instanceof String) {
+            sb.append(stack.pop());
+        }
+
+        return sb.toString();
+    }
+
+
+    //19. leetcode 面试题 17.13. 恢复空格
+    // 输入：
+    //dictionary = ["looked","just","like","her","brother"]
+    //sentence = "jesslookedjustliketimherbrother"
+    //输出： 7
+    //解释： 断句后为"jess looked just like tim her brother"，共7个未识别字符。
+    // 思路和算法：
+    // 预备知识：字符串哈希：可参考「1392. 最长快乐前缀」官方题解中的「背景知识」。
+    // 一种字符串哈希的方法也能实现 O(1)O(1) 的转移，就是「预备知识」中提到的 Rabin-Karp 方法。我们用这种方法替换字典树，时间复杂度不变，空间复杂度可以优化到 O(n + q)O(n+q)，其中 nn 为 sentencesentence 中元素的个数，qq 为词典中单词的个数。
+    //
+    static final long P = Integer.MAX_VALUE;
+    static final long BASE = 41;
+    public int respace(String[] dictionary, String sentence) {
+        Set<Long> hashValues = new HashSet<Long>();
+        for (String word: dictionary) {
+            hashValues.add(getHash(word));
+        }
+
+        int[] f = new int[sentence.length() + 1];
+        Arrays.fill(f, sentence.length());
+
+        f[0] = 0;
+        for (int i = 1; i <= sentence.length(); ++i) {
+            f[i] = f[i - 1] + 1;
+            long hashValue = 0;
+            for (int j = i; j >= 1; --j) {
+                int t = sentence.charAt(j - 1) - 'a' + 1;
+                hashValue = (hashValue * BASE + t) % P;
+                if (hashValues.contains(hashValue)) {
+                    f[i] = Math.min(f[i], f[j - 1]);
+                }
+            }
+        }
+
+        return f[sentence.length()];
+    }
+
+    public long getHash(String s) {
+        long hashValue = 0;
+        for (int i = s.length() - 1; i >= 0; --i) {
+            hashValue = (hashValue * BASE + s.charAt(i) - 'a' + 1) % P;
+        }
+
+        return hashValue;
+    }
+
 
     //=======================================
     public static void main(String[] args){
