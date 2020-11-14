@@ -142,6 +142,56 @@ public class DBFSLeaf {
         cache[n] = ans;
         return ans;
     }
+
+    //4. leetcode79 & 剑指 Offer 12. 矩阵中的路径
+    // 判断在一个矩阵中是否存在一条包含某字符串所有字符的路径。路径可以从矩阵中的任意一格开始，每一步可以在矩阵中向左、右、上、下移动一格。
+    // 如果一条路径经过了矩阵的某一格，那么该路径不能再次进入该格子。
+    //
+    public boolean exist(char[][] board, String word) {
+        char[] chs = word.toCharArray();
+        // 遍历矩阵
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[0].length; j++) {
+                if (existDFS(board, chs, i, j, 0)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean existDFS(char[][] board, char[] chs, int i, int j, int k){
+        // 1. 先判断终止条件
+        // 1.1: (1) 行或列索引越界 或 (2) 当前矩阵元素与目标字符不同 或 (3) 当前矩阵元素已访问过
+        if (i < 0 || i > board.length
+            || j < 0 || j > board[0].length
+            || board[i][j] != chs[k]){
+            return false;
+        }
+
+        //  1.2: (4) 全部匹配，返回 true
+        if (k == chs.length - 1){
+            return true;
+        }
+
+        // 2. 访问过后，修改字符为空，代表元素已经访问过，防止搜索时重复访问
+        board[i][j] = ' ';
+
+        // 3. 递归搜索下一个字符
+        // 朝当前元素的 上、下、左、右 四个方向开启下层递归
+        boolean res = existDFS(board, chs, i - 1, j, k + 1)
+            || existDFS(board, chs, i + 1, j, k + 1)
+            || existDFS(board, chs, i, j - 1, k + 1)
+            || existDFS(board, chs, i, j + 1, k + 1);
+
+        // 4. 复原当前矩阵元素
+        // 将 board[i][j] 元素还原至初始值，即 chs[k]
+        board[i][j] = chs[k];
+
+        return res;
+    }
+
     
     public static void main(String[] args) {
 //        Scanner cin = new Scanner(System.in, StandardCharsets.UTF_8.name());
