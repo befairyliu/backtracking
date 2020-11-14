@@ -161,6 +161,11 @@ public class DBFSLeaf {
         return false;
     }
 
+    // 递归套路：
+    // 1. 先判断终止条件
+    // 2. 访问修改或其他内容操作
+    // 3. 根据题意进行递归操作
+    // 4. 还原元素内容
     private boolean existDFS(char[][] board, char[] chs, int i, int j, int k){
         // 1. 先判断终止条件
         // 1.1: (1) 行或列索引越界 或 (2) 当前矩阵元素与目标字符不同 或 (3) 当前矩阵元素已访问过
