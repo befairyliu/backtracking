@@ -1,92 +1,150 @@
-package com.liu.redleaf;
+package com.liu;
 
 import java.util.Arrays;
 
+//十大排序算法Java示例
 public class SortLeaf {
 
-
-    /**
-     * 1. 冒泡排序 数据两两相比进行冒泡
-     *
-     * @param array
-     * @return
-     */
-    public static int[] bubbleSort(int[] array) {
-        // check params
-        if (array == null || array.length == 0 || array.length == 1 ) {
+    //1. 冒泡排序
+    // 1.1 算法思想：冒泡排序时针对相邻元素之间的比较，可以将大的数慢慢“沉底”(数组尾部)
+    // 1.2 复杂度：
+    // 时间复杂度：O(N^2)，这里N是数组的长度；
+    // 空间复杂度：O(1)，使用到常数个临时变量。
+    // 1.3 稳定性：在相邻元素相等时，它们并不会交换位置，所以，冒泡排序是稳定排序。
+    public static int[] bubbleSort(int[] array){
+        //check params
+        if(array == null || array.length == 0
+                || array.length == 1){
             return array;
         }
 
-        //把最大的数值往后移
-        for (int i = 0; i < array.length; i++) {
-            //已经拍过序的就不用再比较排序,所以j < array.length - 1 - i
-            for (int j = 0; j < array.length - 1 - i; j++) {
-                if (array[j] > array[j + 1]) {
+        // 算法思想：比较相邻的元素。如果第一个比第二个大，就交换它们两个，慢慢将较大数“沉淀”到最后。
+        for(int i = 0; i < array.length; i++) { // 需要排序的轮次
+            for(int j = 0; j < array.length - 1 - i; j++) { // 每轮需要比较的次数
+                if(array[j] > array[j + 1]) { // 交换位置
                     int temp = array[j];
-                    array[j] = array[j + 1];
+                    array[j] = array[j + i];
                     array[j + 1] = temp;
                 }
             }
         }
+
         return array;
     }
 
-
-    /**
-     * 2. 选择排序 每次选择最小的数放前面
-     * @param array
-     * @return
-     */
-    public static int[] selectionSort(int[] array) {
-        // check params
-        if (array == null || array.length == 0 || array.length == 1) {
+    //1. 冒泡排序优化版
+    // 在数据完全有序的时候展现出最优时间复杂度，为O(n)。其他情况下，几乎总是O( n2 )。因此，算法在数据基本有序的情况下，性能最好。
+    // 增加一个swap的标志，当前一轮没有进行交换时，说明数组已经有序，没有必要再进行下一轮的循环了，直接退出。
+    public static int[] bubbleSortOptimized(int[] array){
+        //check params
+        if(array == null || array.length == 0
+            || array.length == 1){
             return array;
         }
 
-        for (int i = 0; i < array.length; i++) {
-            int minIndex = i;//默认第一个数最小，从0开始
-            for (int j = i; j < array.length; j++) {
-                //找到最小的数
-                if (array[j] < array[minIndex]) {
-                    minIndex = j; //将最小数的索引保存
+        // 算法思想：比较相邻的元素。如果第一个比第二个大，就交换它们两个，慢慢将较大数“沉淀”到最后。
+        for(int i = 0; i < array.length; i++) { // 需要排序的轮次
+
+            // 标志位, 默认数组是有序的(排序已经完成)，但只要发生一次交换，就必须进行下一轮比较
+            // 如果在内层循环中，都没有执行一次交换操作，说明此时数组已经是升序数组
+            boolean sorted = true;
+            for(int j = 0; j < array.length - 1 - i; j++) { // 每轮需要比较的次数
+                if(array[j] > array[j + 1]) { // 交换位置
+                    int temp = array[j];
+                    array[j] = array[j + i];
+                    array[j + 1] = temp;
+                    sorted = false;
                 }
             }
-            int temp = array[minIndex];
-            array[minIndex] = array[i];
-            array[i] = temp;
+
+            // 排序完成，跳出循环
+            if (sorted) {
+                break;
+            }
         }
+
         return array;
     }
 
 
-
-    /**
-     * 3.插入排序--通过构建有序序列，对于未排序数据，在已排序序列中从后向前扫描，找到相应位置并插入。
-     * @param array
-     * @return
-     */
-    public static int[] insertionSort(int[] array) {
-        // check params
-        if (array == null || array.length == 0 || array.length == 1) {
+    //2. 选择排序
+    // 2.1 算法思想：
+    //    在未排序序列中找到最小（大）元素，存放到排序序列的起始位置
+    //    从剩余未排序元素中继续寻找最小（大）元素，然后放到已排序序列的末尾。
+    //    重复第二步，直到所有元素均排序完毕。
+    // 2.2 复杂度
+    // 时间复杂度：O(N^2)，这里N是数组的长度；
+    // 空间复杂度：O(1)，使用到常数个临时变量。
+    // 2.3 稳定性：用数组（默认情况）实现的选择排序是不稳定的，用链表实现的选择排序是稳定的。
+    public static int[] selectionSort(int[] array){
+        //check params
+        if(array == null || array.length == 0
+                || array.length == 1){
             return array;
         }
 
-        int current; // 记录当前位置（未排序部分）
-        for (int i = 0; i < array.length - 1; i++) {
-            current = array[i + 1];
-            int j = i; //j用来在已排序好的序列中循环
-            while (j >= 0 && current < array[j]) {
-                //大于当前值的数，位置往后移
-                array[j+1] = array[j];
-                j--;
+        // 将第一个值看成最小值,然后和后续的比较找出最小值和下标,
+        // 交换本次遍历的起始值和最小值,然后循环遍历
+        for(int i = 0; i < array.length; i++) { // 需要排序的轮次
+            int minIndex = i;
+
+            // 循环查找最小值下表
+            for(int j = i; j < array.length; j++){
+                if(array[j] < array[minIndex]){
+                    minIndex = j;
+                }
             }
-            //插入待排序的值
-            array[j+1] = current;
+
+            if (minIndex != i) {
+                int temp = array[minIndex];
+                array[minIndex] = array[i];
+                array[i] = temp;
+            }
+
         }
         return array;
     }
 
-    //4.1 希尔排序
+    //3. 插入排序
+    // 3.1 算法思想：
+    // 把待排序的数组分成已排序和未排序两部分，初始的时候把第一个元素认为是已排好序的。
+    // 从第二个元素开始，在已排好序的子数组中寻找到该元素合适的位置并插入该位置。
+    // 重复上述过程直到最后一个元素被插入有序子数组中。
+    // 3.2 复杂度
+    // 时间复杂度：O(N^2)，这里N是数组的长度；
+    // 空间复杂度：O(1)，使用到常数个临时变量。
+    // 3.3 稳定性：由于只需要找到不大于当前数的位置而并不需要交换，因此，直接插入排序是稳定的排序方法。
+    public static int[] insertionSort(int[] array){
+        //check params
+        if(array == null || array.length == 0
+                || array.length == 1){
+            return array;
+        }
+
+        // 第1个元素可以认为已经被排序；
+        // 从第2个元素开始，取出元素，在已经排序的元素序列中从后向前扫描；
+        // 如果已排序元素大于新元素，将已排序元素后移一个位置，如此循环找到新元素的插入位置；
+        int current;
+        for(int i = 1; i < array.length; i++){
+            current = array[i];
+            int j = i;
+            while (j > 0 && current < array[j - 1]){
+                // 后移一个位置
+                array[j] = array[j - 1];
+                j--;
+            }
+
+            // 存在比其小的数，插入
+            if (j != i) {
+                array[j] = current;
+            }
+        }
+
+        return array;
+    }
+
+
+    //4. 希尔排序
     public static int[] shellSort(int[] array){
         //check params
         if(array == null || array.length == 0
@@ -108,49 +166,21 @@ public class SortLeaf {
                     array[j] = array[j - gap];
                     j = j - gap;
                 }
+
                 array[j] = temp;
             }
+
             // 步长每次减半
             gap = gap / 2;
         }
-        return array;
-    }
-    
 
-    /**
-     * 4.2 希尔排序
-     *
-     * @param array
-     * @return
-     */
-    public static int[] ShellSort(int[] array) {
-        // check params
-        if (array == null || array.length == 0 || array.length == 1) {
-            return array;
-        }
-
-        int len = array.length;
-        int gap = len / 2;
-        // gap循环步长,不断缩小gap，直到1为止
-        while (gap > 0) {
-            for (int i = 0; i < len - gap ; i++) {
-                //使用当前gap进行组内插入
-                for(int k = 0; k < len - gap; k = k + gap){
-                    if(array[k] > array[k+gap]){
-                        int temp = array[k+gap];
-                        array[k+gap] = array[k];
-                        array[k] = temp;
-                    }
-                }
-            }
-            gap /= 2;
-        }
         return array;
     }
 
 
+    // 5. 归并排序
     /**
-     * 5.归并排序
+     * 归并排序
      *
      * @param array
      * @return
@@ -165,10 +195,9 @@ public class SortLeaf {
         int mid = array.length / 2;
         int[] left = Arrays.copyOfRange(array, 0, mid);
         int[] right = Arrays.copyOfRange(array, mid, array.length);
-        return merge(MergeSort(left), MergeSort(right));
+        return merge(mergeSort(left), mergeSort(right));
     }
-
-     /**
+    /**
      * 归并排序——将两段排序好的数组结合成一个排序数组
      *
      * @param left
@@ -198,13 +227,12 @@ public class SortLeaf {
         }
         return result;
     }
-    
-    
+
+
     // 6. 快速排序
     public static int[] quickSort(int[] array){
         //check params
-        if(array == null || array.length == 0
-                || array.length == 1 ){
+        if(array == null || array.length <= 1 ){
             return array;
         }
 
@@ -250,8 +278,7 @@ public class SortLeaf {
 
     public static int[] quickSortII(int[] array, int low, int high){
         //check params
-        if(array == null || array.length == 0
-                || array.length == 1){
+        if(array == null || array.length <= 1){
             return array;
         }
 
@@ -344,14 +371,15 @@ public class SortLeaf {
         }
         return array;
     }
-    
-    
-    
-    
+
 
     public static void main(String[] args){
-
-        int[] array = {1,6,5,3,7,9,2};
-        System.out.println("The sort array:" + bubbleSort(array));
+        int[] array = {2,7,4,1,8,1,6};
+        //System.out.println("The sorted array: "+ quickSort(array));
+        //System.out.println("The sorted array: "+ quickSortII(array, 0, array.length -1));
+        int[] array2 = {-15,5,7,6,5};
+        System.out.println("The sorted array: "+ countingSort(array2));
     }
+
 }
+
