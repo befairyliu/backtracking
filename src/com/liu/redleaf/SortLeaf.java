@@ -411,11 +411,15 @@ public class SortLeaf {
 
 
     // 8. 堆排序
-    // 8.1 算法思想：堆排序(Heapsort)是指利用堆积树（堆）这种数据结构所设计的一种排序算法，它是选择排序的一种。可以利用数组的特点快速定位指定索引的元素。堆排序就是把最大堆堆顶的最大数取出，将剩余的堆继续调整为最大堆，再次将堆顶的最大数取出，这个过程持续到剩余数只有一个时结束。
-    //     创建一个堆 H[0……n-1]；
-    //     把堆首（最大值）和堆尾互换；
-    //     把堆的尺寸缩小 1，并调用 shift_down(0)，目的是把新的数组顶端数据调整到相应位置；
-    //     重复步骤 2，直到堆的尺寸为 1。
+    // 堆排序(Heapsort)是指利用堆积树（堆）这种数据结构所设计的一种排序算法，它是选择排序的一种。
+    // 可以利用数组的特点快速定位指定索引的元素。堆排序就是把最大堆堆顶的最大数取出，
+    // 将剩余的堆继续调整为最大堆，再次将堆顶的最大数取出，这个过程持续到剩余数只有一个时结束。
+    // 大顶堆：arr[i] >= arr[2i+1] && arr[i] >= arr[2i+2]
+    // 小顶堆：arr[i] <= arr[2i+1] && arr[i] <= arr[2i+2]
+    // 8.1 算法思想：
+    //    a.将无需序列构建成一个堆，根据升序降序需求选择大顶堆或小顶堆;
+    //　　b.将堆顶元素与末尾元素交换，将最大元素"沉"到数组末端;
+    //　　c.重新调整结构，使其满足堆定义，然后继续交换堆顶元素与当前末尾元素，反复执行调整+交换步骤，直到整个序列有序。
     // 8.2 复杂度：
     //   时间复杂度：O(NlogN)，这里 N是数组的长度；
     //   空间复杂度：O(1)
@@ -429,20 +433,21 @@ public class SortLeaf {
             return array;
         }
 
-        //1.构建大顶堆
+        // 1.构建大顶堆
         for(int i = array.length/2 - 1; i >= 0; i--){
-            //从第一个非叶子结点从下至上，从右至左调整结构
+            // 从第一个非叶子结点从下至上，从右至左调整结构
             adjustHeap(array, i, array.length);
         }
-        //2.调整堆结构+交换堆顶元素与末尾元素
-        for(int j = array.length - 1; j>0; j--){
+
+        // 2.调整堆结构+交换堆顶元素与末尾元素
+        for(int j = array.length - 1; j > 0; j--){
             // 将堆顶元素与末尾元素进行交换
             int temp = array[0];
             array[0] = array[j];
             array[j] = temp;
 
             // 重新对堆进行调整
-            adjustHeap(array,0,j);
+            adjustHeap(array,0, j);
         }
 
         return array;
@@ -450,25 +455,31 @@ public class SortLeaf {
 
     /**
      * 调整大顶堆（仅是调整过程，建立在大顶堆已构建的基础上）
-     * @param array
-     * @param i
-     * @param length
+     * @param array 数组
+     * @param i  当前下沉节点的下标
+     * @param length  [0， length]是array的有效部分
      */
-    public static void adjustHeap(int []array, int i, int length){
-        int temp = array[i];//先取出当前元素i
-        for(int k = i*2 + 1; k < length; k = k*2 + 1) {//从i结点的左子结点开始，也就是2i+1处开始
-            if(k + 1 < length && array[k] < array[k+1]) {//如果左子结点小于右子结点，k指向右子结点
-                k++;
+    public static void adjustHeap(int []array, int i, int length) {
+        int temp = array[i]; // 先取出当前元素i
+        int j = 2*i + 1;
+        while(j < length) {
+            // 如果有右子节点，且右子节点大于左子节点的值，则定位到右子节点
+            if (j + 1 < length && array[j + 1] > array[j]) {
+                j++;
             }
 
-            if(array[k] > temp) { // 如果子节点大于父节点，将子节点值赋给父节点（不用进行交换）
-                array[i] = array[k];
-                i = k;
-            } else {
+            // 如果父节点小于任何一个子节点的值，则直接跳出
+            if (temp >= array[j]) {
                 break;
             }
+
+            // 无需真正交换，单向赋值即可
+            array[i] = array[j];
+            i = j;
+            j = 2*j + 1;
         }
-        array[i] = temp;//将temp值放到最终的位置
+
+        array[i] = temp; //将temp值放到最终的位置
     }
 
 
@@ -603,4 +614,3 @@ public class SortLeaf {
     }
 
 }
-
