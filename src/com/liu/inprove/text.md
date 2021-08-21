@@ -246,7 +246,123 @@ public class MusicPlayer {
 
 ====================================================================
 
+0521
 
+第二题
+二叉树，标记满足下面条件的节点：若有一条从根节点到叶子节点的路径下，存在一个节点，将该路径上分为总和相等的两部分，那么该节点应被打上标记。比如下图中的3、5、1。返回所有未被标记的节点的总和。
+
+【3】7 + 6 = 13 = 11 +2
+【5】7 = 7 = 4 + 3
+【1】7 + 5 + 4 = 16 = 16
+
+
+思路是dfs过程中比较上半段的和和下半段的和，如果有相等的，就累加该节点的值到markSum.递归完成后使用总和sum - markSum就是答案。
+
+
+```
+public class Solution {
+
+public int bisectTreePath(TreeNode root) {
+    markTree(root, 0);
+    return calTree(root);
+}
+
+//递归标记树，对符合条件的节点置 val = 0
+private void markTree(TreeNode tree, int sum) {
+    if (tree == null) {
+        return;
+    }
+    int val = tree.val;
+
+    //一个节点被标记，则其左或右子树，存在一条路径，根节点到叶子节点的路径节点和等于指定和sum
+    if (hasSum(tree.left, sum) || hasSum(tree.right, sum)) {
+        tree.val = 0;
+    }
+    markTree(tree.left, sum + val);
+    markTree(tree.right, sum + val);
+}
+
+//经典题：二叉树是否存在某条根到叶子节点的路径，其节点和为指定值
+private boolean hasSum(TreeNode node, int sum) {
+    if (node == null) {
+        return false;
+    }
+    if (node.val == sum && node.left == null && node.right == null) {
+        return true;
+    }
+    return hasSum(node.left, sum - node.val) || hasSum(node.right, sum - node.val);
+}
+
+//对标记后的树进行递归求和
+private int calTree(TreeNode tree) {
+    if (tree == null) {
+        return 0;
+    }
+    if (tree.left == null && tree.right == null) {
+        return tree.val;
+    }
+    return tree.val + calTree(tree.left) + calTree(tree.right);
+}
+}
+```
+或者
+
+```
+public static int bisectTreePath(TreeNode root) {
+    finalS = 0;
+    cal(root, 0);
+    return finalS;
+}
+
+public static void cal(TreeNode root, int sum) {
+    if (root.right == null && root.left == null) {
+        finalS += root.val;
+        return;
+    }
+    if (!canSum(root, sum) || sum == 0) {
+        finalS += root.val;
+    }
+    if (root.right != null) {
+        cal(root.right, sum + root.val);
+    }
+    if (root.left != null) {
+        cal(root.left, sum + root.val);
+    }
+}
+
+public static boolean canSum(TreeNode root, int sum) {
+    if (sum == 0 && root.right == null && root.left == null) {
+        return true;
+    }
+    if ((root.right == null && root.left == null) || sum < 0) {
+        return false;
+    }
+    if (root.right == null) {
+        return canSum(root.left, sum - root.left.val);
+    } 
+    if (root.left == null) {
+        return canSum(root.right, sum - root.right.val);
+    } 
+    return canSum(root.right, sum - root.right.val) || canSum(root.left, sum - root.left.val);
+}
+```
+
+
+第三题
+专业级第三题：
+题目：给定一个M*N的矩阵sensors，在其中找所有边长为cnt的正方形区域内sensors[i][j]的总和最大值，然后将总和最大的正方形区域（可能有多个）内的sensors[i][j]的种类求出来。
+其中2 <= cnt <= M,N <= 1000; 0 <= sensors[i][j] <= 10000;
+
+求解：
+第一步：构建一个从[0][0]到[i][j]前缀和二维数组，时间复杂度O(M X N),空间复杂度O(M X N)
+第二步：遍历[cnt - 1 : M - 1][cnt - 1 : N - 1]区域内的正方形，基于前缀和数组进行计算，主要考虑是正方形的左上角将右下角的前缀和分为了4个区域，做减法可以求解到正方形区域和值，在这个过程中可以得到最大正方形的区域和值；时间复杂度O(M X N)；
+第三步：构建空的unordered_set作为ans, 遍历[cnt - 1 : M - 1][cnt - 1 : N - 1]区域，将正方形区域和与最大值相等的区域内sensors[i][j]加入ans，最后返回ans的size；最恶劣情况下时间复杂度为O(M X N X cnt X cnt)，这跟最大值正方形区域的数量以及多个最大值正方形区域的重叠度有关。
+
+
+该题重点是减少时间复杂度，使用前缀和减少求部分和的计算量。另外，在找到和最大的若干块之后，还要去重。一开始使用了std::set去重，总是超时。后来使用一个线性表记录这些块中出现过的数字，可以通过。后半段去重可能还有更好的方法。
+
+
+======================================================================
 
 0423
 第一题
