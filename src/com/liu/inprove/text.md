@@ -193,6 +193,61 @@ int CooperativePerformance(int num, int **program, int programSize)
 
 
 ================================================================
+
+0604
+
+第二题
+// 曲库系统。
+//初始化时给定容量为capacity
+//操作：
+//
+//添加。
+//当歌曲已经在曲库中，返回-1；
+//当容量没满时，直接添加，返回0；
+//当容量满时，选取一曲删除，放入新曲，返回被删除曲号。
+//删除规则为：1）. 选取播放次数最少的删除；
+//2）. 若播放次数一样少（非零），选取第一次播放早的曲删除
+//3）. 若播放次数一样少（零），选取添加进曲库早的删除
+
+//播放
+//指定的曲子在曲库，播放一次，返回true；否则返回false
+
+//删除
+//指定曲在系统，删除该曲及其播放记录，返回true；否则返回false。
+```
+public class MusicPlayer {
+
+
+    MusicPlayer() {
+
+    }
+
+    public int addMusic(int musicId) {
+
+        return -1;
+    }
+
+
+
+    public boolean playMusic(int musicId) {
+
+        return true;
+    }
+
+    public boolean deleteMusic(int musicId) {
+
+        return true;
+    }
+}
+```
+
+
+
+
+====================================================================
+
+
+
 0423
 第一题
 公司组织每周运动步数的活动，要搞一个榜单，具体规则如下：
