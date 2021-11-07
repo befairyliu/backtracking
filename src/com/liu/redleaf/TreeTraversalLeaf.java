@@ -124,20 +124,62 @@ public class TreeTraversalLeaf {
         //stack.push(root);
         TreeNode current = root;
         while(current != null || !stack.isEmpty()){
-            if(current != null){
-                //把左边界压入栈中,直到为左字树null
+            while (current != null) {
+                // 把左边界压入栈中,直到为左字树null
                 stack.push(current);
                 current = current.left;
-            } else {
-                //记为node，记录node的值，并令current=node.right,重复步骤2
-                current = stack.pop();
-                list.add(current.val);
-                current = current.right;
-            }
+            } 
+            
+            // 记为node，记录node的值，并令current=node.right,重复步骤2
+            current = stack.pop();
+            list.add(current.val);
+            current = current.right;
         }
         return list;
     }
+    
+    // 方法三：Morris 中序遍历
+    // 思路与算法
+    // Morris 遍历算法是另一种遍历二叉树的方法，它能将非递归的中序遍历空间复杂度降为 O(1)。
+    // Morris 遍历算法整体步骤如下（假设当前遍历到的节点为 x）：
+    // 如果 x 无左孩子，先将 x 的值加入答案数组，再访问 x 的右孩子，即 x = x.right。
+    // 如果 x 有左孩子，则找到 x 左子树上最右的节点（即左子树中序遍历的最后一个节点，x 在中序遍历中的前驱节点），我们记为 predecessor。根据 predecessor 的右孩子是否为空，进行如下操作。
+    // 如果 predecessor 的右孩子为空，则将其右孩子指向 x，然后访问 x 的左孩子，即 x = x.left。
+    // 如果 predecessor 的右孩子不为空，则此时其右孩子指向 x，说明我们已经遍历完x 的左子树，我们将 predecessor 的右孩子置空，将 x 的值加入答案数组，然后访问 x 的右孩子，即 x = x.right。
+    // 重复上述操作，直至访问完整棵树。
+    public List<Integer> midOrderTraversal(TreeNode root) {
+        List<Integer> res = new ArrayList<Integer>();
+        TreeNode predecessor = null;
 
+        while (root != null) {
+            if (root.left != null) {
+                // predecessor 节点就是当前 root 节点向左走一步，然后一直向右走至无法走为止
+                predecessor = root.left;
+                while (predecessor.right != null && predecessor.right != root) {
+                    predecessor = predecessor.right;
+                }
+                
+                // 让 predecessor 的右指针指向 root，继续遍历左子树
+                if (predecessor.right == null) {
+                    predecessor.right = root;
+                    root = root.left;
+                }
+                // 说明左子树已经访问完了，我们需要断开链接
+                else {
+                    res.add(root.val);
+                    predecessor.right = null;
+                    root = root.right;
+                }
+            }
+            // 如果没有左孩子，则直接访问右孩子
+            else {
+                res.add(root.val);
+                root = root.right;
+            }
+        }
+        return res;
+    }
+    
 
     //5. 统计Tree的节点
     // 5.1 使用后序遍历 -- recursion method
