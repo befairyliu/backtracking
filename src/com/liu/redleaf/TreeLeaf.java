@@ -640,6 +640,258 @@ public class TreeLeaf {
         path.removeLast();
     }
     
+    
+    //14. leetcode 156. 上下翻转二叉树（树旋转了一下，不是翻转）
+    // 规律是：左子节点变父节点；父节点变右子节点；右子节点变左节点。
+    public TreeNode upsideDownBinaryTree(TreeNode root) {
+        if(root == null || (root.left == null)){
+            return root;
+        }
+
+        // 其中所有的右节点要么是具有兄弟节点（拥有相同父节点的左节点）的叶节点，要么为空
+        // 所以递归旋转树，只转换左子树
+        TreeNode node = upsideDownBinaryTree(root.left);
+
+        //旋转树
+        root.left.right = root;
+        root.left.left = root.right;
+        // 断关系, 防止形成环
+        root.left = null;
+        root.right = null;
+
+        return node;
+    }
+
+    // leetcode 156 迭代方法
+    public TreeNode upsideDownBinaryTreeII(TreeNode root) {
+        if(root == null || (root.left == null)){
+            return root;
+        }
+
+        // 其中所有的右节点要么是具有兄弟节点（拥有相同父节点的左节点）的叶节点，要么为空
+        // 所以递归旋转树，只转换左子树
+        Stack<TreeNode> stack = new Stack<>();
+        TreeNode target = null;
+        TreeNode current = root;
+        // 找最左子树
+        while(current != null){
+            stack.push(current);
+            current = current.left;
+        }
+
+        target = stack.pop();
+        current = target;
+        //开始旋转
+        while(!stack.isEmpty()){
+            //当前节点之前的父节点
+            TreeNode temp = stack.pop();
+            //父节点变右节点
+            current.right = temp;
+            //前父节点的右节点变左节点
+            current.left = temp.right;
+            // 把之前的父节点赋值给当前节点，继续循环旋转下去
+            current = temp;
+        }
+
+        // 防止成环，断关系
+        current.left = null;
+        current.right = null;
+
+        return target;
+    }
+
+    // 15. leetcode 199. 二叉树的右视图
+    // 给定一棵二叉树，想象自己站在它的右侧，按照从顶部到底部的顺序，返回从右侧所能看到的节点值。
+    // 方法1： BFS
+    public List<Integer> rightSideView(TreeNode root) {
+        List<Integer> res = new ArrayList<>();
+        //check input params
+        if (root == null) {
+            return res;
+        }
+
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll();
+                if (node.left != null) {
+                    queue.offer(node.left);
+                }
+                if (node.right != null) {
+                    queue.offer(node.right);
+                }
+                // 每层的最后一个节点入链表
+                if (i == size - 1) {
+                    res.add(node.val);
+                }
+            }
+        }
+
+        return res;
+    }
+
+    // 方法2： DFS
+    // 根节点 -> 右子树节点 -> 左子树节点
+    List<Integer> rightSideList = new ArrayList<>();
+    public List<Integer> rightSideViewII(TreeNode root) {
+        rightSideDFS(root, 0);
+        return rightSideList;
+    }
+
+    private void rightSideDFS (TreeNode root, int depth) {
+        if (root == null) {
+            return;
+        }
+        //每层第一个访问的节点
+        if (depth == rightSideList.size()) {
+            rightSideList.add(root.val);
+        }
+
+        depth++;
+        rightSideDFS(root.right, depth);
+        rightSideDFS(root.left, depth);
+    }
+
+//    当节点 B 为空：说明树 B 已匹配完成（越过叶子节点），因此返回 truetrue ；
+//    当节点 A 为空：说明已经越过树 A 的叶节点，即匹配失败，返回 falsefalse ；
+//    当节点 A 和 B 的值不同：说明匹配失败，返回 falsefalse ；
+
+    public boolean isSubStructure(TreeNode A, TreeNode B) {
+        return (A != null && B != null) && (recur(A, B)
+            || isSubStructure(A.left, B)
+            || isSubStructure(A.right, B));
+    }
+
+    boolean recur(TreeNode A, TreeNode B) {
+        if(B == null) return true;
+        if(A == null || A.val != B.val) return false;
+        return recur(A.left, B.left) && recur(A.right, B.right);
+    }
+
+
+    public TreeNode mirrorTree(TreeNode root) {
+        TreeNode target = recursionTree(root);
+        return target;
+    }
+
+    private TreeNode recursionTree (TreeNode root){
+        // 终止条件
+        if (root == null) {
+            return null;
+        }
+
+        TreeNode target = new TreeNode(root.val);
+        target.left = recursionTree(root.right);
+        target.right = recursionTree(root.left);
+
+        return target;
+    }
+
+    public boolean isSymmetricII(TreeNode root) {
+        // 1.终止条件
+        if (root == null) {
+            return true;
+        }
+
+        // 2.递归
+        return isSymmetricTreeII (root.left, root.right);
+    }
+
+    private boolean isSymmetricTreeII (TreeNode left, TreeNode right){
+        if (left == null && right == null) {
+            return true;
+        } else if ((left == null && right != null)
+            || (left != null && right == null)) {
+            return false;
+        } else {
+            if (left.val == right.val) {
+                return isSymmetricTreeII(left.left, right.right)
+                    && isSymmetricTreeII(left.right, right.left);
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public int[] levelOrderII(TreeNode root) {
+        if(root == null){
+            return new int[] {};
+        }
+
+        Queue<TreeNode> queue = new LinkedList<>();
+        Queue<TreeNode> temp = new LinkedList<>();
+        queue.offer(root);
+
+        while(!queue.isEmpty()){
+            TreeNode current = queue.poll();
+            temp.offer(current);
+
+            if (current.left != null) queue.offer(current.left);
+            if (current.right != null) queue.offer(current.right);
+        }
+
+        int[] res = new int[temp.size()];
+        for(int i = 0; i < res.length; i++) {
+            res[i] = temp.poll().val;
+        }
+
+        return res;
+    }
+
+    public List<List<Integer>> levelOrderIII(TreeNode root) {
+        List<List<Integer>> res = new LinkedList<>();
+        if(root == null){
+            res.add(new ArrayList<>());
+            return res;
+        }
+
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+
+        while(!queue.isEmpty()){
+            List<Integer> temp = new LinkedList<>();
+            for (int i = 0; i < queue.size(); i++) {
+                TreeNode current = queue.poll();
+                temp.add(current.val);
+
+                if (current.left != null) queue.offer(current.left);
+                if (current.right != null) queue.offer(current.right);
+            }
+
+            res.add(temp);
+        }
+
+        return res;
+    }
+
+    public TreeNode lowestCommonAncestorII(TreeNode root, TreeNode p, TreeNode q) {
+        // 1. 递归终止条件
+        if (root == null || root == p || root == q) {
+            return root;
+        }
+
+        // 2. 递归 - 后序遍历
+        TreeNode left = lowestCommonAncestorII(root.left, p, q);
+        TreeNode right = lowestCommonAncestorII(root.right, p, q);
+
+        // 3. 根据不同的情况返回结果
+        // 3.1 当left == null && right == null
+        if (left == null && right == null) {
+            return null;
+        } else if (left == null) {
+            // 3.2 当left == null && right != null
+            return right;
+        } else if (right == null) {
+            // 3.3 当left != null && right == null
+            return left;
+        } else {
+            // 3.4 default, 当left != null && right != null
+            return root;
+        }
+    }
+    
     //=====================================================================
 
     public static void main(String[] args){
