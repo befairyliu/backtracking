@@ -5,22 +5,22 @@ import java.util.Arrays;
 public class SortLeaf {
 
 
-    /**
-     * 1. 冒泡排序 数据两两相比进行冒泡
-     *
-     * @param array
-     * @return
-     */
+    //1. 冒泡排序
+    // 1.1 算法思想：冒泡排序时针对相邻元素之间的比较，可以将大的数慢慢“沉底”(数组尾部)
+    // 1.2 复杂度：
+    // 时间复杂度：O(N^2)，这里N是数组的长度；
+    // 空间复杂度：O(1)，使用到常数个临时变量。
+    // 1.3 稳定性：在相邻元素相等时，它们并不会交换位置，所以，冒泡排序是稳定排序。
     public static int[] bubbleSort(int[] array) {
         // check params
         if (array == null || array.length == 0 || array.length == 1 ) {
             return array;
         }
 
-        //把最大的数值往后移
-        for (int i = 0; i < array.length; i++) {
+        //算法思想：比较相邻的元素。如果第一个比第二个大，就交换它们两个，慢慢将较大数“沉淀”到最后。
+        for (int i = 0; i < array.length; i++) { // 需要排序的轮次
             //已经拍过序的就不用再比较排序,所以j < array.length - 1 - i
-            for (int j = 0; j < array.length - 1 - i; j++) {
+            for (int j = 0; j < array.length - 1 - i; j++) { // 每轮需要比较的次数
                 if (array[j] > array[j + 1]) {
                     int temp = array[j];
                     array[j] = array[j + 1];
@@ -30,13 +30,52 @@ public class SortLeaf {
         }
         return array;
     }
+    
+    
+    //1. 冒泡排序优化版
+    // 在数据完全有序的时候展现出最优时间复杂度，为O(n)。其他情况下，几乎总是O( n2 )。因此，算法在数据基本有序的情况下，性能最好。
+    // 增加一个swap的标志，当前一轮没有进行交换时，说明数组已经有序，没有必要再进行下一轮的循环了，直接退出。
+    public static int[] bubbleSortOptimized(int[] array){
+        //check params
+        if(array == null || array.length == 0
+            || array.length == 1){
+            return array;
+        }
+
+        // 算法思想：比较相邻的元素。如果第一个比第二个大，就交换它们两个，慢慢将较大数“沉淀”到最后。
+        for(int i = 0; i < array.length; i++) { // 需要排序的轮次
+
+            // 标志位, 默认数组是有序的(排序已经完成)，但只要发生一次交换，就必须进行下一轮比较
+            // 如果在内层循环中，都没有执行一次交换操作，说明此时数组已经是升序数组
+            boolean sorted = true;
+            for(int j = 0; j < array.length - 1 - i; j++) { // 每轮需要比较的次数
+                if(array[j] > array[j + 1]) { // 交换位置
+                    int temp = array[j];
+                    array[j] = array[j + i];
+                    array[j + 1] = temp;
+                    sorted = false;
+                }
+            }
+
+            // 排序完成，跳出循环
+            if (sorted) {
+                break;
+            }
+        }
+
+        return array;
+    }
 
 
-    /**
-     * 2. 选择排序 每次选择最小的数放前面
-     * @param array
-     * @return
-     */
+    //2. 选择排序
+    // 2.1 算法思想：
+    //    在未排序序列中找到最小（大）元素，存放到排序序列的起始位置
+    //    从剩余未排序元素中继续寻找最小（大）元素，然后放到已排序序列的末尾。
+    //    重复第二步，直到所有元素均排序完毕。
+    // 2.2 复杂度
+    // 时间复杂度：O(N^2)，这里N是数组的长度；
+    // 空间复杂度：O(1)，使用到常数个临时变量。
+    // 2.3 稳定性：用数组（默认情况）实现的选择排序是不稳定的，用链表实现的选择排序是稳定的。
     public static int[] selectionSort(int[] array) {
         // check params
         if (array == null || array.length == 0 || array.length == 1) {
@@ -60,11 +99,18 @@ public class SortLeaf {
 
 
 
-    /**
-     * 3.插入排序--通过构建有序序列，对于未排序数据，在已排序序列中从后向前扫描，找到相应位置并插入。
-     * @param array
-     * @return
-     */
+    //3. 插入排序
+    // 3.1 算法思想：
+    // 把待排序的数组分成已排序和未排序两部分，初始的时候把第一个元素认为是已排好序的。
+    // 从第二个元素开始，在已排好序的子数组中寻找到该元素合适的位置并插入该位置。
+    // 重复上述过程直到最后一个元素被插入有序子数组中。
+    // 3.2 复杂度
+    // 时间复杂度：O(N^2)，这里N是数组的长度；
+    // 空间复杂度：O(1)，使用到常数个临时变量。
+    // 3.3 稳定性：由于只需要找到不大于当前数的位置而并不需要交换，因此，直接插入排序是稳定的排序方法。
+    // 3.4 适用场景：
+    // 在STL的sort算法和stdlib的qsort算法中，都将插入排序作为快速排序的补充，用于少量元素的排序。
+    // 另外，在JDK 7 java.util.Arrays所用的sort方法的实现中，当待排数组长度小于47时，会使用插入排序。
     public static int[] insertionSort(int[] array) {
         // check params
         if (array == null || array.length == 0 || array.length == 1) {
@@ -86,7 +132,15 @@ public class SortLeaf {
         return array;
     }
 
-    //4.1 希尔排序
+    
+    //4. 希尔排序
+    // 希尔排序是第一个突破O(n2)的排序算法，它是简单插入排序的改进版.
+    // 4.1 算法思想：
+    // 先将整个待排序的记录序列分割成为若干子序列分别进行直接插入排序，具体算法描述：
+    // 选择一个增量序列t1，t2，…，tk，其中ti>tj，tk=1；
+    // 按增量序列个数k，对序列进行 k 趟排序；
+    // 每趟排序，根据对应的增量ti，将待排序列分割成若干长度为m 的子序列，分别对各子表进行直接插入排序。仅增量因子为1 时，整个序列作为一个表来处理，表长度即为整个序列的长度。
+    
     public static int[] shellSort(int[] array){
         //check params
         if(array == null || array.length == 0
@@ -149,12 +203,20 @@ public class SortLeaf {
     }
 
 
-    /**
-     * 5.归并排序
-     *
-     * @param array
-     * @return
-     */
+    // 5. 归并排序
+    // 5.1 算法思路：分而治之，借助额外空间，合并两个有序数组，得到更长的有序数组。
+    //     申请空间，使其大小为两个已经排序序列之和，该空间用来存放合并后的序列
+    //     设定两个指针，最初位置分别为两个已经排序序列的起始位置
+    //     比较两个指针所指向的元素，选择相对小的元素放入到合并空间，并移动指针到下一位置
+    //     重复步骤3直到某一指针到达序列尾
+    //     将另一序列剩下的所有元素直接复制到合并序列尾
+    // 5.2 复杂度
+    // 时间复杂度：O(NlogN)，这里N是数组的长度；
+    // 空间复杂度：O(N)，辅助数组与输入数组规模相当。
+    // 5.3 稳定性：在遇到相等的数据的时候必然是按顺序“抄写”到辅助数组上的，所以，归并排序同样是稳定算法。
+    // 5.4 适用场景：归并排序在数据量比较大的时候也有较为出色的表现（效率上），
+    // 但是，其空间复杂度O(n)使得在数据量特别大的时候（例如，1千万数据）几乎不可接受。
+    // 算法优化时，可以在数组待排数组的个数小于一定值时（例如<=7个时）采用插入排序法。
     public static int[] mergeSort(int[] array) {
         //check params
         if(array == null || array.length == 0
@@ -201,6 +263,17 @@ public class SortLeaf {
     
     
     // 6. 快速排序
+    // 6.1 算法思想：
+    // 6.1.1 从数列中挑出一个元素，称为"基准"（pivot），
+    // 6.1.2 重新排序数列，所有比基准值小的元素摆放在基准前面，所有比基准值大的元素摆在基准后面（相同的数可以到任何一边）。在这个分区结束之后，该基准就处于数列的中间位置。这个称为分区（partition）操作。
+    // 6.1.3 递归地（recursively）把小于基准值元素的子数列和大于基准值元素的子数列排序。
+    // 6.2 复杂度：
+    //    时间复杂度：O(NlogN)，这里 N是数组的长度；
+    //    空间复杂度：O(logN)，这里占用的空间主要来自递归函数的栈空间
+    // 6.3 稳定性：快速排序并不是稳定的，因为无法保证相等的数据按顺序被扫描到和按顺序存放。
+    // 6.4 适用场景：
+    //    快速排序在大多数情况下都是适用的，尤其在数据量大的时候性能优越性更加明显。
+    //    但是在必要的时候，需要考虑下优化以提高其在最坏情况下的性能。
     public static int[] quickSort(int[] array){
         //check params
         if(array == null || array.length == 0
@@ -300,15 +373,22 @@ public class SortLeaf {
 
         return pivotIndex;
     }
-
-
+    
+    
     //7. 计数排序
-    /**
-     * 计数排序
-     *
-     * @param array
-     * @return
-     */
+    // 计数排序不是基于比较的排序算法，其核心在于将输入的数据值转化为键存储在额外开辟的数组空间中。
+    // 作为一种线性时间复杂度的排序，计数排序要求输入的数据必须是有确定范围的整数。
+    // 7.1 算法思想：
+    // 找出待排序的数组中最大和最小的元素；
+    // 统计数组中每个值为i的元素出现的次数，存入数组C的第i项；
+    // 对所有的计数累加（从C中的第一个元素开始，每一项和前一项相加）；
+    // 反向填充目标数组：将每个元素i放在新数组的第C(i)项，每放一个元素就将C(i)减去1。
+    // 7.2 复杂度：
+    //   时间复杂度：O(N + k)，这里 N是数组的长度；
+    //   空间复杂度：O(k)
+    // 7.3 稳定性：稳定的排序算法。
+    // 7.4 适用场景：排序目标要能够映射到整数域，其最大值最小值应当容易辨别。
+    // 另外，计数排序需要占用大量空间，它比较适用于数据比较集中的情况。
     public static int[] countingSort(int[] array) {
         //check params
         if(array == null || array.length == 0
@@ -344,8 +424,200 @@ public class SortLeaf {
         }
         return array;
     }
-    
-    
+
+
+    // 8. 堆排序
+    // 堆排序(Heapsort)是指利用堆积树（堆）这种数据结构所设计的一种排序算法，它是选择排序的一种。
+    // 可以利用数组的特点快速定位指定索引的元素。堆排序就是把最大堆堆顶的最大数取出，
+    // 将剩余的堆继续调整为最大堆，再次将堆顶的最大数取出，这个过程持续到剩余数只有一个时结束。
+    // 大顶堆：arr[i] >= arr[2i+1] && arr[i] >= arr[2i+2]
+    // 小顶堆：arr[i] <= arr[2i+1] && arr[i] <= arr[2i+2]
+    // 8.1 算法思想：
+    //    a.将无需序列构建成一个堆，根据升序降序需求选择大顶堆或小顶堆;
+    //　　b.将堆顶元素与末尾元素交换，将最大元素"沉"到数组末端;
+    //　　c.重新调整结构，使其满足堆定义，然后继续交换堆顶元素与当前末尾元素，反复执行调整+交换步骤，直到整个序列有序。
+    // 8.2 复杂度：
+    //   时间复杂度：O(NlogN)，这里 N是数组的长度；
+    //   空间复杂度：O(1)
+    // 8.3 稳定性：堆排序存在大量的筛选和移动过程，属于不稳定的排序算法。
+    // 8.4 适用场景：堆排序在建立堆和调整堆的过程中会产生比较大的开销，在元素少的时候并不适用。
+    // 但是，在元素比较多的情况下，还是不错的一个选择。尤其是在解决诸如“前n大的数”一类问题时，几乎是首选算法。
+    public static int[] heapSort(int []array){
+        //check params
+        if(array == null || array.length == 0
+            || array.length == 1){
+            return array;
+        }
+
+        // 1.构建大顶堆
+        for(int i = array.length/2 - 1; i >= 0; i--){
+            // 从第一个非叶子结点从下至上，从右至左调整结构
+            adjustHeap(array, i, array.length);
+        }
+
+        // 2.调整堆结构+交换堆顶元素与末尾元素
+        for(int j = array.length - 1; j > 0; j--){
+            // 将堆顶元素与末尾元素进行交换
+            int temp = array[0];
+            array[0] = array[j];
+            array[j] = temp;
+
+            // 重新对堆进行调整
+            adjustHeap(array,0, j);
+        }
+
+        return array;
+    }
+
+    /**
+     * 调整大顶堆（仅是调整过程，建立在大顶堆已构建的基础上）
+     * @param array 数组
+     * @param i  当前下沉节点的下标
+     * @param length  [0， length]是array的有效部分
+     */
+    public static void adjustHeap(int []array, int i, int length) {
+        int temp = array[i]; // 先取出当前元素i
+        int j = 2*i + 1;
+        while(j < length) {
+            // 如果有右子节点，且右子节点大于左子节点的值，则定位到右子节点
+            if (j + 1 < length && array[j + 1] > array[j]) {
+                j++;
+            }
+
+            // 如果父节点小于任何一个子节点的值，则直接跳出
+            if (temp >= array[j]) {
+                break;
+            }
+
+            // 无需真正交换，单向赋值即可
+            array[i] = array[j];
+            i = j;
+            j = 2*j + 1;
+        }
+
+        array[i] = temp; //将temp值放到最终的位置
+    }
+
+
+    // 9. 桶排序
+    // 桶排序又叫箱排序，是计数排序的升级版，它的工作原理是将数组分到有限数量的桶子里，然后对每个桶子再分别排序
+    // （有可能再使用别的排序算法或是以递归方式继续使用桶排序进行排序），最后将各个桶中的数据有序的合并起来。
+    // 9.1 算法思想：
+    // 找出待排序数组中的最大值max、最小值min
+    // 我们使用 动态数组ArrayList 作为桶，桶里放的元素也用 ArrayList 存储。桶的数量为(max-min)/arr.length+1
+    // 遍历数组 arr，计算每个元素 arr[i] 放的桶
+    // 每个桶各自排序
+    // 遍历桶数组，把排序好的元素放进输出数组
+    // 9.2 复杂度：
+    //   时间复杂度：O(NlogN)，这里 N是数组的长度；
+    //   空间复杂度：O(1)
+    // 9.3 稳定性：算法是不稳定的
+    // 9.4 适用场景：桶排序可用于最大最小值相差较大的数据情况，但桶排序要求数据的分布必须均匀，否则可能导致数据都集中到一个桶中。
+    // 比如[104,150,123,132,20000], 这种数据会导致前4个数都集中到同一个桶中。导致桶排序失效。
+    public static void bucketSort(int[] arr){
+        int max = Integer.MIN_VALUE;
+        int min = Integer.MAX_VALUE;
+        for(int i = 0; i < arr.length; i++){
+            max = Math.max(max, arr[i]);
+            min = Math.min(min, arr[i]);
+        }
+        //桶数
+        int bucketNum = (max - min) / arr.length + 1;
+        ArrayList<ArrayList<Integer>> bucketArr = new ArrayList<>(bucketNum);
+        for(int i = 0; i < bucketNum; i++){
+            bucketArr.add(new ArrayList<Integer>());
+        }
+        //将每个元素放入桶
+        for(int i = 0; i < arr.length; i++){
+            int num = (arr[i] - min) / (arr.length);
+            bucketArr.get(num).add(arr[i]);
+        }
+        //对每个桶进行排序
+        for(int i = 0; i < bucketArr.size(); i++){
+            Collections.sort(bucketArr.get(i));
+        }
+        System.out.println(bucketArr.toString());
+    }
+
+
+    // 10. 基数排序
+    // 基数排序(Radix Sort)是桶排序的扩展，它的基本思想是：将整数按位数切割成不同的数字，然后按每个位数分别比较。
+    // 排序过程：将所有待比较数值（正整数）统一为同样的数位长度，数位较短的数前面补零。然后，从最低位开始，依次进行一次排序。这样从最低位排序一直到最高位排序完成以后, 数列就变成一个有序序列。
+    // 10.1 算法思想：
+    // 取得数组中的最大数，并取得位数；
+    // arr为原始数组，从最低位开始取每个位组成radix数组；
+    // 对radix进行计数排序（利用计数排序适用于小范围数的特点）
+    // 10.2 复杂度：
+    //   时间复杂度：O(N*k)，这里 N是数组的长度；
+    //   空间复杂度：O(N+k)
+    // 10.3 稳定性：稳定
+    // 10.4 适用场景：基数排序要求较高，元素必须是整数，整数时长度10W以上，最大值100W以下效率较好，但是基数排序比其他排序好在可以适用字符串，或者其他需要根据多个条件进行排序的场景，
+    // 例如日期，先排序日，再排序月，最后排序年 ，其它排序算法可是做不了的。
+    public abstract class Sorter {
+        public abstract void sort(int[] array);
+    }
+
+    public class RadixSorter extends Sorter {
+
+        private int radix;
+
+        public RadixSorter() {
+            radix = 10;
+        }
+
+        @Override
+        public void sort(int[] array) {
+            // 数组的第一维表示可能的余数0-radix，第二维表示array中的等于该余数的元素
+            // 如：十进制123的个位为3，则bucket[3][] = {123}
+            int[][] bucket = new int[radix][array.length];
+            int distance = getDistance(array); // 表示最大的数有多少位
+            int temp = 1;
+            int round = 1; // 控制键值排序依据在哪一位
+            while (round <= distance) {
+                // 用来计数：数组counter[i]用来表示该位是i的数的个数
+                int[] counter = new int[radix];
+                // 将array中元素分布填充到bucket中，并进行计数
+                for (int i = 0; i < array.length; i++) {
+                    int which = (array[i] / temp) % radix;
+                    bucket[which][counter[which]] = array[i];
+                    counter[which]++;
+                }
+                int index = 0;
+                // 根据bucket中收集到的array中的元素，根据统计计数，在array中重新排列
+                for (int i = 0; i < radix; i++) {
+                    if (counter[i] != 0)
+                        for (int j = 0; j < counter[i]; j++) {
+                            array[index] = bucket[i][j];
+                            index++;
+                        }
+                    counter[i] = 0;
+                }
+                temp *= radix;
+                round++;
+            }
+        }
+
+        private int getDistance(int[] array) {
+            int max = computeMax(array);
+            int digits = 0;
+            int temp = max / radix;
+            while(temp != 0) {
+                digits++;
+                temp = temp / radix;
+            }
+            return digits + 1;
+        }
+
+        private int computeMax(int[] array) {
+            int max = array[0];
+            for(int i=1; i<array.length; i++) {
+                if(array[i]>max) {
+                    max = array[i];
+                }
+            }
+            return max;
+        }
+    }
     
     
 
