@@ -124,16 +124,16 @@ public class TreeTraversalLeaf {
         //stack.push(root);
         TreeNode current = root;
         while(current != null || !stack.isEmpty()){
-            if(current != null){
-                //把左边界压入栈中,直到为左字树null
+            while (current != null){
+                // 把左边界压入栈中,直到为左字树null
                 stack.push(current);
                 current = current.left;
-            } else {
-                //记为node，记录node的值，并令current=node.right,重复步骤2
-                current = stack.pop();
-                list.add(current.val);
-                current = current.right;
             }
+            
+            // 记为node，记录node的值，并令current=node.right, 重复步骤2
+            current = stack.pop();
+            list.add(current.val);
+            current = current.right;
         }
         return list;
     }
