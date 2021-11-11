@@ -1,7 +1,6 @@
 package com.liu.redleaf;
 
 public class BinarySearchUtil {
-
     /*
      * @description: 经典写法，查找数组中不含有重复数字target的位置下标
      * @param nums 待查找数组
@@ -15,14 +14,14 @@ public class BinarySearchUtil {
 
         while(left <= right) {
             int mid = left + (right - left) / 2;
-            if(nums[mid] == target)
+            if(nums[mid] == target) {
                 return mid;
-            else if (nums[mid] < target)
+            } else if (nums[mid] < target) {
                 left = mid + 1; // 注意
-            else if (nums[mid] > target)
+            } else if (nums[mid] > target) {
                 right = mid - 1; // 注意
+            }
         }
-
         return -1;
     }
 
