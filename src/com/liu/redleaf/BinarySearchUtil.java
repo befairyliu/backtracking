@@ -114,7 +114,8 @@ public class BinarySearchUtil {
                 right = mid;
             }
         }
-        return right == nums.length ? -1 : (nums[right] == target ? right : -1);
+        
+        return right == nums.length ? -1 : right;
     }
 
     /*
@@ -154,6 +155,6 @@ public class BinarySearchUtil {
                 right = mid;
             }
         }
-        return right == nums.length ? -1 : (nums[right] == target ? right : -1);
+        return right == nums.length ? -1 : right;
     }
 }
